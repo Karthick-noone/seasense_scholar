@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, Eye, EyeOff, LogIn, ShieldCheck, Zap, Headphones } from 'lucide-react';
 import './Login.css';
 import logo from './../../assets/img/logo.png';
@@ -24,6 +24,7 @@ const Login = ({ onLogin }) => {
       const res = await loginUser({
         user_id: scholarId,
         pwd: password,
+        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://seasensescholar.seasense.in/"
       });
 
       const { token, user, scholar, company_details, last_work_details } = res.data;
@@ -51,10 +52,10 @@ const Login = ({ onLogin }) => {
       {/* LEFT SIDE - CONTENT */}
       <div className="login-brand">
         <div className="brand-content">
-          <div className="brand-logo">
+          {/* <div className="brand-logo">
             <ShieldCheck size={45} />
             <img src={logo} alt="Logo" className="login-logo-image" />
-          </div>
+          </div> */}
 
           <h1>Access your research workspace</h1>
 
@@ -103,7 +104,7 @@ const Login = ({ onLogin }) => {
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="input-group">
-              <label>Scholar ID</label>
+              <label>Scholar ID <span className='mandatory'>*</span></label>
               <div className="input-field">
                 <User size={18} className="field-icon" />
                 <input
@@ -119,7 +120,7 @@ const Login = ({ onLogin }) => {
             </div>
 
             <div className="input-group">
-              <label>Password</label>
+              <label>Password <span className='mandatory'>*</span></label>
               <div className="input-field">
                 <Lock size={18} className="field-icon" />
                 <input
@@ -153,7 +154,9 @@ const Login = ({ onLogin }) => {
                 </>
               )}
             </button>
-
+            <Link to={"forgot-password"} style={{ textDecoration: 'none', textAlign:'right' }}>
+              <span className='forgot-password'>Forgot password?</span>
+            </Link>
             {/* <div className="demo-info">
               <p>Demo: user / user123</p>
             </div> */}

@@ -470,7 +470,7 @@ const Dashboard = () => {
           <div className="deadlines-premium-card">
             <div className="card-header">
               <h3>{(workDetails?.scholar?.work_dl_on) ?  " Upcoming Deadlines " : "Work Description"}</h3>
-              <Calendar size={18} className="header-icon" />
+              {/* <Calendar size={18} className="header-icon" /> */}
             </div>
             <div className="deadlines-list">
               {/* {deadlines.map((deadline, index) => ( */}

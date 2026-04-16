@@ -105,12 +105,17 @@ const Profile = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
 
     if (file) {
       const formData = new FormData();
       formData.append("scholar_profile", file);
 
-      uploadImage(formData);
+      uploadImage(formData, {
+        onSuccess: () => {
+          e.target.value = "";
+        }
+      });
     }
   };
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

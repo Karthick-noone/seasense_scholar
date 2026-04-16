@@ -9,6 +9,10 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+.mandatory {
+  color: #dc2626;
+  margin-left: 2px;
+}
 
 /* MAIN CONTAINER - SPLIT LAYOUT */
 .login-page {
@@ -222,7 +226,13 @@ body {
   color: #cbd5e1;
   font-weight: 400;
 }
-
+.forgot-password {
+  font-size: 13px;
+  color: #2563eb;
+  text-align: right;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
 .password-eye {
   position: absolute;
   right: 14px;
