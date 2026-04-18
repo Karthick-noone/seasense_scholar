@@ -58,19 +58,20 @@ const ForgetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
-    
+
     if (Object.keys(newErrors).length === 0) {
       sendOtpMutation(
         {
           user_id: formData.scholarId,
-          email: formData.email
+          email: formData.email,
+          com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://seasensescholar.seasense.in/"
         },
         {
           onSuccess: (response) => {
             const encryptedData = response.data?.data?.encrypted_otp;
             const userId = response.data?.data?.user_id;
             const userName = response.data?.data?.name;
-            
+
             setEncryptedOtp(encryptedData);
             setUserData({
               userId: userId,
@@ -78,20 +79,20 @@ const ForgetPassword = () => {
               scholarId: formData.scholarId,
               email: formData.email
             });
-            
+
             setVerificationData({
               scholarId: formData.scholarId,
               email: formData.email,
               otpSent: true
             });
-            
+
             // Show success alert before redirecting
             showSuccessAlertMessage('OTP sent successfully to your registered email!');
-            
+
             // Redirect to OTP verification page after alert
-            setTimeout(() => {
+            // setTimeout(() => {
               setStep(2);
-            }, 1500);
+            // }, 1000);
           },
           onError: (error) => {
             const errorMessage = error.response?.data?.message || 'Failed to send OTP. Please try again.';
@@ -104,33 +105,33 @@ const ForgetPassword = () => {
       setErrors(newErrors);
     }
   };
- 
- const handleOtpVerified = async (enteredOtp) => {
-  if (!encryptedOtp) {
-    const error = new Error('No OTP found. Please request a new one.');
-    setErrors({ otp: error.message });
-    throw error;
-  }
-  
-  try {
-    const isValid = await verifyOtp(encryptedOtp, enteredOtp);
-    
-    if (isValid) {
-      showSuccessAlertMessage('OTP verified successfully!');
-      setTimeout(() => {
-        setStep(3);
-      }, 1500);
-    } else {
-      // ✅ Important: Throw error for invalid OTP
-      const error = new Error('Invalid OTP. Please try again.');
+
+  const handleOtpVerified = async (enteredOtp) => {
+    if (!encryptedOtp) {
+      const error = new Error('No OTP found. Please request a new one.');
       setErrors({ otp: error.message });
       throw error;
     }
-  } catch (error) {
-    setErrors({ otp: error?.message || 'Error verifying OTP. Please try again.' });
-    throw error;
-  }
-};
+
+    try {
+      const isValid = await verifyOtp(encryptedOtp, enteredOtp);
+
+      if (isValid) {
+        showSuccessAlertMessage('OTP verified successfully!');
+        setTimeout(() => {
+          setStep(3);
+        }, 1500);
+      } else {
+        //  Important: Throw error for invalid OTP
+        const error = new Error('Invalid OTP. Please try again.');
+        setErrors({ otp: error.message });
+        throw error;
+      }
+    } catch (error) {
+      setErrors({ otp: error?.message || 'Error verifying OTP. Please try again.' });
+      throw error;
+    }
+  };
 
   const handleBackToRequest = () => {
     setStep(1);
@@ -142,7 +143,7 @@ const ForgetPassword = () => {
   const handleResetComplete = () => {
     // Show success alert before redirecting
     // showSuccessAlertMessage('Password reset successfully! Redirecting to login...');
-    
+
     // Redirect to login after alert
     setTimeout(() => {
       window.location.href = '/';
@@ -150,15 +151,15 @@ const ForgetPassword = () => {
   };
 
   const clearOtpError = () => {
-  setErrors(prev => ({ ...prev, otp: '' }));
-};
+    setErrors(prev => ({ ...prev, otp: '' }));
+  };
 
   const apiError = sendOtpError?.response?.data?.message || errors.form;
 
   return (
     <div className="forget-enhanced">
       <div className="forget-enhanced-container">
-        
+
         {/* Success Alert Toast */}
         {showSuccessAlert && (
           <div className="success-alert-toast">
@@ -166,7 +167,7 @@ const ForgetPassword = () => {
             <span>{successMessage}</span>
           </div>
         )}
-        
+
         {/* Step 1 - Request Form */}
         {step === 1 && (
           <div className="enhanced-card">
@@ -178,7 +179,7 @@ const ForgetPassword = () => {
                   <span>Secure Recovery</span>
                 </div>
                 <h3>Verify your identity</h3>
-                
+
                 <div className="info-steps">
                   <div className="info-step-item">
                     <div className="step-number">1</div>
@@ -296,7 +297,7 @@ const ForgetPassword = () => {
               onBack={handleBackToRequest}
               isVerifying={false}
               verifyError={errors.otp}
-                    onClearError={clearOtpError}  // ✅ Add this prop
+              onClearError={clearOtpError}  //  Add this prop
 
             />
           </div>

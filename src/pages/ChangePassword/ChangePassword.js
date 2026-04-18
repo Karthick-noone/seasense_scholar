@@ -270,7 +270,7 @@ const ChangePassword = () => {
                                         className="input-premium-toggle"
                                         onClick={() => togglePasswordVisibility('current')}
                                     >
-                                        {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        {showPasswords.current ? <Eye size={18} /> : <EyeOff size={18} />}
                                     </button>
                                 </div>
                                 {errors.currentPassword && (
@@ -301,7 +301,7 @@ const ChangePassword = () => {
                                         className="input-premium-toggle"
                                         onClick={() => togglePasswordVisibility('new')}
                                     >
-                                        {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        {showPasswords.new ? <Eye size={18} /> : <EyeOff size={18} />}
                                     </button>
                                 </div>
                                 {errors.newPassword && (
@@ -379,7 +379,7 @@ const ChangePassword = () => {
                                         className="input-premium-toggle"
                                         onClick={() => togglePasswordVisibility('confirm')}
                                     >
-                                        {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        {showPasswords.confirm ? <Eye size={18} /> : <EyeOff size={18} />}
                                     </button>
                                 </div>
                                 {errors.confirmPassword && (
@@ -455,7 +455,7 @@ const ChangePassword = () => {
                                 </div> */}
                                 <div className="tip-premium-item">
                                     <span>✓</span>
-                                    <span>Don't reuse old passwords</span>
+                                    <span>Don’t use your personal details</span>
                                 </div>
                                 {/* <div className="tip-premium-item">
                                     <span>✓</span>

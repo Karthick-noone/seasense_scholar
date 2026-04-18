@@ -45,7 +45,7 @@ function App() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  // ✅ FIXED: Match the exact route path
+  // Public routes that should NOT show sidebar/header
   const publicRoutes = ['/login', '/forgot-password'];
   const isPublicPage = publicRoutes.some(route =>
     location.pathname === route || location.pathname.startsWith(route + '/')
@@ -96,11 +96,11 @@ function App() {
 function AppRoutes({ isAuthenticated }) {
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<Login />} />
+      {/* Public Routes - No sidebar/header */}
+      <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       
-      {/* Private Routes */}
+      {/* Private Routes - With sidebar/header */}
       <Route
         path="/dashboard"
         element={
@@ -142,7 +142,7 @@ function AppRoutes({ isAuthenticated }) {
         }
       />
 
-      {/* Default Redirects */}
+      {/* Default Redirect - Root path */}
       <Route
         path="/"
         element={

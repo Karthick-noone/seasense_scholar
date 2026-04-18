@@ -260,10 +260,11 @@ transform: translateY(-4px);
 }
 
 /* Label */
-.stat-premium-label {
+.dashboard-stat-premium-label {
   font-size: 13px;
   color: var(--text-muted);
   text-align: center;
+  margin-top: 5px;
 }
 .stat-premium-icon {
   width: 48px;
@@ -976,4 +977,3 @@ transform: translateY(-4px);
 .progress-stats:has(.empty-progress-stats) .stats-header {
   display: none;
 }
-

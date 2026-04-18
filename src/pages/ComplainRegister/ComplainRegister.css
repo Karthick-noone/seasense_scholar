@@ -128,6 +128,19 @@
   gap: 16px;
 }
 
+.search-term {
+  font-size: 13px;
+  flex: 1;
+}
+
+
+.search-term span{
+  font-size: 13px;
+  font-style: italic;
+}
+
+
+
 .complaint-filter-tabs {
   display: flex;
   gap: 8px;
@@ -161,6 +174,7 @@
 
 .complaint-search-wrapper {
   min-width: 250px;
+  position: relative;
 }
 
 .complaint-search-input {
@@ -173,6 +187,15 @@
   font-size: 14px;
 }
 
+.search-clear-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
 .complaint-search-input:focus {
   outline: none;
   border-color: var(--primary-color);
@@ -364,6 +387,23 @@
 
 .complaint-modal-body {
   padding: 24px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.complaint-text {
+  width: 100%;
+  max-width: 500px;
+  /* adjust as needed */
+  /* border: 1px solid #ccc; */
+  padding: 10px;
+}
+
+.complaint-text p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
 }
 
 /* Form Styles */
@@ -857,7 +897,44 @@
   background: #e0e7ff;
   color: #4f46e5;
 }
+.complaint-delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
+  width: 32px;
+  height: 32px;
+
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.1); /* light red */
+  color: #ef4444;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.complaint-delete-off-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 10px;
+  background: rgba(68, 176, 239, 0.1); /* light red */
+  /* color: #44cdef; */
+
+  cursor: not-allowed;
+  transition: all 0.25s ease;
+}
+
+.complaint-delete-button:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+}
 
 /* View Reply Button */
 .view-reply-btn {

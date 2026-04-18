@@ -3,16 +3,16 @@ import { Mail, User, RefreshCw, Clock, ArrowLeft, CheckCircle, AlertCircle, Shie
 import './ForgetPassword.css';
 import { useSendOtp } from '../../hooks/useForgotPassword';
 
-const OtpVerification = ({ 
-  email, 
-  scholarId, 
-  onVerified, 
-  onBack, 
+const OtpVerification = ({
+  email,
+  scholarId,
+  onVerified,
+  onBack,
   verifyError,
-  onClearError  // ✅ New prop
+  onClearError
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(300);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [localError, setLocalError] = useState('');
@@ -31,7 +31,9 @@ const OtpVerification = ({
     if (timeLeft <= 0) {
       setIsResendDisabled(false);
       setIsOtpExpired(true);
+      //  Clear OTP fields when expired
       setOtp(['', '', '', '', '', '']);
+      //  Clear any existing errors
       setLocalError('');
       if (onClearError) onClearError();
       return;
@@ -53,7 +55,6 @@ const OtpVerification = ({
     newOtp[index] = value;
     setOtp(newOtp);
     setLocalError('');
-    // ✅ Clear parent error when user starts typing
     if (onClearError) onClearError();
     if (value && index < 5) inputRefs.current[index + 1].focus();
   };
@@ -66,15 +67,15 @@ const OtpVerification = ({
 
   const handleVerify = async () => {
     const enteredOtp = otp.join('');
-    
+
     if (enteredOtp.length !== 6) {
       setLocalError('Please enter the complete 6-digit OTP');
       setIsVerifying(false);
       return;
     }
-    
+
     setIsVerifying(true);
-    
+
     try {
       await onVerified(enteredOtp);
     } catch (error) {
@@ -84,25 +85,27 @@ const OtpVerification = ({
     }
   };
 
-  // ✅ Resend function that clears ALL errors (local and parent)
   const handleResendOnExpiry = () => {
-    // ✅ Clear parent error
     if (onClearError) onClearError();
-    
+
     resendOtpMutation(
       {
         user_id: scholarId,
-        email: email
+        email: email,
+        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://seasensescholar.seasense.in/"
       },
       {
         onSuccess: (response) => {
           setIsResendDisabled(true);
           setIsOtpExpired(false);
-          setTimeLeft(10);
-          setLocalError('');      // ✅ Clear local error
+          setTimeLeft(300);
+          setLocalError('');
           setOtp(['', '', '', '', '', '']);
           setIsVerifying(false);
-          if (inputRefs.current[0]) inputRefs.current[0].focus();
+          //  Focus on first input after resend
+          setTimeout(() => {
+            if (inputRefs.current[0]) inputRefs.current[0].focus();
+          }, 100);
         },
         onError: (error) => {
           setLocalError(error.response?.data?.message || 'Failed to resend OTP');
@@ -112,22 +115,26 @@ const OtpVerification = ({
   };
 
   const handleResendOtp = () => {
-    // ✅ Clear parent error
     if (onClearError) onClearError();
-    
+
     resendOtpMutation(
       {
         user_id: scholarId,
-        email: email
+        email: email,
+        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://seasensescholar.seasense.in/"
+
       },
       {
         onSuccess: (response) => {
           setIsResendDisabled(true);
           setIsOtpExpired(false);
-          setTimeLeft(10);
-          setLocalError('');      // ✅ Clear local error
+          setTimeLeft(300);
+          setLocalError('');
           setOtp(['', '', '', '', '', '']);
-          if (inputRefs.current[0]) inputRefs.current[0].focus();
+          //  Focus on first input after resend
+          setTimeout(() => {
+            if (inputRefs.current[0]) inputRefs.current[0].focus();
+          }, 100);
         },
         onError: (error) => {
           setLocalError(error.response?.data?.message || 'Failed to resend OTP');
@@ -149,7 +156,6 @@ const OtpVerification = ({
     }
   };
 
-  // Display error only if not expired and error exists
   const displayError = !isOtpExpired && (localError || verifyError);
 
   return (
@@ -160,7 +166,7 @@ const OtpVerification = ({
             <Shield size={20} />
             <span>Security Check</span>
           </div>
-          <h3>Enter 6 digit OTP</h3>
+          <h3>Verify OTP</h3>
           <p>We use this verification to ensure account security. The OTP is valid for 2 minutes.</p>
 
           <div className="info-tip-list">
@@ -174,12 +180,12 @@ const OtpVerification = ({
             </div>
             <div className="tip-item">
               <CheckCircle size={16} />
-              <span>You can request a new code after 2 minutes</span>
+              <span>You can request a new code after 5 minutes</span>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div className="enhanced-form-side otp-side">
         <div className="enhanced-form-header">
           <button className="back-btn-enhanced" onClick={onBack}>
@@ -232,9 +238,9 @@ const OtpVerification = ({
         )}
 
         {!isOtpExpired ? (
-          <button 
-            className="enhanced-submit-btn verify" 
-            onClick={handleVerify} 
+          <button
+            className="enhanced-submit-btn verify"
+            onClick={handleVerify}
             disabled={isVerifying}
           >
             {isVerifying ? (
@@ -250,9 +256,9 @@ const OtpVerification = ({
             )}
           </button>
         ) : (
-          <button 
-            className="enhanced-submit-btn resend" 
-            onClick={handleResendOnExpiry} 
+          <button
+            className="enhanced-submit-btn resend"
+            onClick={handleResendOnExpiry}
             disabled={isResending}
           >
             {isResending ? (
@@ -281,29 +287,29 @@ const OtpVerification = ({
             <div className="modal-enhanced-body">
               <div className="change-field">
                 <label>Email Address</label>
-                <input 
-                  type="email" 
-                  value={changeData.email} 
-                  onChange={(e) => setChangeData({ ...changeData, email: e.target.value })} 
-                  placeholder="Enter new email" 
+                <input
+                  type="email"
+                  value={changeData.email}
+                  onChange={(e) => setChangeData({ ...changeData, email: e.target.value })}
+                  placeholder="Enter new email"
                 />
               </div>
               <div className="change-field">
                 <label>Scholar ID</label>
-                <input 
-                  type="text" 
-                  value={changeData.scholarId} 
-                  onChange={(e) => setChangeData({ ...changeData, scholarId: e.target.value })} 
-                  placeholder="Enter Scholar ID" 
+                <input
+                  type="text"
+                  value={changeData.scholarId}
+                  onChange={(e) => setChangeData({ ...changeData, scholarId: e.target.value })}
+                  placeholder="Enter Scholar ID"
                 />
               </div>
               <p className="warning-text">A new OTP will be sent to the updated email address.</p>
             </div>
             <div className="modal-enhanced-footer">
               <button className="modal-btn cancel" onClick={() => setShowChangeModal(false)}>Cancel</button>
-              <button className="modal-btn submit" onClick={() => { 
-                setShowChangeModal(false); 
-                handleResendOtp(); 
+              <button className="modal-btn submit" onClick={() => {
+                setShowChangeModal(false);
+                handleResendOtp();
               }}>Update & Resend</button>
             </div>
           </div>

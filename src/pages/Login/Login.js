@@ -52,10 +52,10 @@ const Login = ({ onLogin }) => {
       {/* LEFT SIDE - CONTENT */}
       <div className="login-brand">
         <div className="brand-content">
-          {/* <div className="brand-logo">
+          <div className="brand-logo">
             <ShieldCheck size={45} />
             <img src={logo} alt="Logo" className="login-logo-image" />
-          </div> */}
+          </div>
 
           <h1>Access your research workspace</h1>
 
@@ -154,7 +154,7 @@ const Login = ({ onLogin }) => {
                 </>
               )}
             </button>
-            <Link to={"forgot-password"} style={{ textDecoration: 'none', textAlign:'right' }}>
+            <Link to={"/forgot-password"} style={{ textDecoration: 'none', textAlign:'right' }}>
               <span className='forgot-password'>Forgot password?</span>
             </Link>
             {/* <div className="demo-info">

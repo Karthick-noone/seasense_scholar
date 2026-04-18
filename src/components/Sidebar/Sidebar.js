@@ -13,7 +13,9 @@ import {
   Award,
   Bell,
   Settings,
-  HelpCircle
+  HelpCircle,
+  IndianRupee,
+  Lock
 } from 'lucide-react';
 import './Sidebar.css';
 import logo from './../../assets/img/logo.png';
@@ -27,6 +29,7 @@ const { mutate: logout } = useLogout();
 
   const companyDetails = secureStorage.getCompany();
   const companyLogo = `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
+  // const companyLogo = `${process.env.REACT_APP_BASE_URL}/${companyDetails?.com_logo}` || `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
 
   useEffect(() => {
     const handleResize = () => {
@@ -43,9 +46,9 @@ const { mutate: logout } = useLogout();
   const menuItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/profile', icon: User, label: 'Profile' },
-    { path: '/payment-history', icon: CreditCard, label: 'Payment History' },
+    { path: '/payment-history', icon: IndianRupee, label: 'Payment History' },
     { path: '/complain-register', icon: FileText, label: 'Complain Register' },
-    { path: '/change-password', icon: Key, label: 'Change Password' },
+    { path: '/change-password', icon: Lock, label: 'Change Password' },
   ];
 
   const handleNavClick = () => {

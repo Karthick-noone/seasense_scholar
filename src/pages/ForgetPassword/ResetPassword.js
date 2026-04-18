@@ -146,7 +146,7 @@ const ResetPassword = ({
             <label>New Password <span className='mandatory'>*</span></label>
             <div className="input-enhanced-wrapper">
               <Lock size={18} />
-              <input type={showPasswords.new ? 'text' : 'password'} name="newPassword" value={formData.newPassword} onChange={handleChange} placeholder="Enter new password" className={errors.newPassword ? 'error' : ''} />
+              <input type={showPasswords.new ? 'text' : 'password'} name="newPassword" value={formData.newPassword} onChange={handleChange} autoFocus placeholder="Enter new password" className={errors.newPassword ? 'error' : ''} />
               <button type="button" className="toggle-password" onClick={() => togglePassword('new')}>
                 {showPasswords.new ? <Eye size={18} className='eye-icons'/> : <EyeOff size={18} className='eye-icons'/>}
               </button>

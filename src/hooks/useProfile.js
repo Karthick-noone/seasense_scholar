@@ -33,7 +33,7 @@ export const useDeleteProfileImage = () => {
     mutationFn: deleteProfileImage,
 
     onSuccess: () => {
-      // ✅ Update cache after delete
+      //  Update cache after delete
       queryClient.setQueryData(["scholar"], (oldData) => {
         if (!oldData) return oldData;
 

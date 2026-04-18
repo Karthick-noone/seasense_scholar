@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Receipt, Calendar, Tag, DollarSign, Building2, IndianRupeeIcon } from 'lucide-react';
+import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Receipt, Calendar, Tag, DollarSign, Building2, IndianRupeeIcon, InfoIcon } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 import html2canvas from 'html2canvas';
 import * as jspdf from 'jspdf';
 import { usePayments } from '../../hooks/usePayments';
 import { secureStorage } from '../../utils/secureStorage';
+import logo from './../../assets/img/logo.png'
 
 
 const PaymentHistory = () => {
@@ -53,9 +54,10 @@ const PaymentHistory = () => {
   };
 
 
+
   const handleDownloadReceipt = async () => {
     try {
-      // Show loading indicator (optional)
+      // Show loading indicator
       const downloadBtn = document.querySelector('.receipt-premium-download');
       const originalText = downloadBtn.innerHTML;
       downloadBtn.innerHTML = 'Generating PDF...';
@@ -63,34 +65,97 @@ const PaymentHistory = () => {
 
       const element = document.getElementById('receipt-content');
 
-      // Store original styles
-      const originalWidth = element.style.width;
-      const originalPadding = element.style.padding;
-      const originalMargin = element.style.margin;
-      const originalBoxShadow = element.style.boxShadow;
+      //  Create a clone of the element to avoid modifying the original
+      const cloneElement = element.cloneNode(true);
+      cloneElement.style.width = '800px';
+      cloneElement.style.padding = '10px';
+      cloneElement.style.margin = '0';
+      cloneElement.style.background = 'white';
+      cloneElement.style.boxShadow = 'none';
 
-      // Temporarily style for better PDF capture
-      element.style.width = '800px';
-      element.style.padding = '40px';
-      element.style.margin = '0';
-      element.style.background = 'white';
-      element.style.boxShadow = 'none';
+      // Temporarily append clone to body (hidden)
+      cloneElement.style.position = 'absolute';
+      cloneElement.style.left = '-9999px';
+      cloneElement.style.top = '-9999px';
+      document.body.appendChild(cloneElement);
 
-      // Generate canvas
-      const canvas = await html2canvas(element, {
-        scale: 3, // Higher scale for better quality
+      //  Handle all images - convert to base64 to avoid CORS issues
+      const images = cloneElement.querySelectorAll('img');
+      const imagePromises = Array.from(images).map(async (img) => {
+        try {
+          // Skip if already data URL
+          if (img.src && img.src.startsWith('data:')) {
+            return;
+          }
+
+          // Fetch and convert image to base64
+          const response = await fetch(img.src, {
+            mode: 'cors',
+            headers: {
+              'Origin': window.location.origin
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const reader = new FileReader();
+
+          return new Promise((resolve) => {
+            reader.onloadend = () => {
+              img.src = reader.result;
+              resolve();
+            };
+            reader.onerror = () => {
+              console.warn('Failed to convert image:', img.src);
+              resolve();
+            };
+            reader.readAsDataURL(blob);
+          });
+        } catch (error) {
+          console.warn('Could not load image:', img.src, error);
+          // Try alternative: use canvas to convert
+          try {
+            const base64 = await convertImageToBase64Alternative(img.src);
+            if (base64) {
+              img.src = base64;
+            }
+          } catch (e) {
+            console.warn('Alternative conversion also failed');
+          }
+          return Promise.resolve();
+        }
+      });
+
+      // Wait for all images to be converted
+      await Promise.all(imagePromises);
+
+      // Additional delay to ensure images are rendered
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      //  Configure html2canvas with optimal settings
+      const canvas = await html2canvas(cloneElement, {
+        scale: 3,
         backgroundColor: '#ffffff',
         logging: false,
         useCORS: true,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight
+        allowTaint: false,
+        imageTimeout: 0, // No timeout
+        onclone: (clonedDoc, element) => {
+          // Ensure all images are properly loaded in clone
+          const clonedImages = clonedDoc.querySelectorAll('img');
+          clonedImages.forEach(img => {
+            if (img.src && !img.src.startsWith('data:')) {
+              img.crossOrigin = 'anonymous';
+            }
+          });
+        }
       });
 
-      // Restore original styles
-      element.style.width = originalWidth;
-      element.style.padding = originalPadding;
-      element.style.margin = originalMargin;
-      element.style.boxShadow = originalBoxShadow;
+      // Remove the temporary clone
+      document.body.removeChild(cloneElement);
 
       // Create PDF
       const imgData = canvas.toDataURL('image/png');
@@ -101,12 +166,11 @@ const PaymentHistory = () => {
       });
 
       // Calculate dimensions
-      const imgWidth = 190; // A4 width in mm (with margins)
-      const pageHeight = 277; // A4 height in mm (with margins)
+      const imgWidth = 190; // mm (A4 width minus margins)
+      const pageHeight = 277; // mm (A4 height minus margins)
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
-      let pageNumber = 1;
 
       // Add first page
       pdf.addImage(imgData, 'PNG', 10, position + 10, imgWidth, imgHeight);
@@ -118,11 +182,10 @@ const PaymentHistory = () => {
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 10, position + 10, imgWidth, imgHeight);
         heightLeft -= pageHeight;
-        pageNumber++;
       }
 
       // Save the PDF
-      pdf.save(`Payment_receipt_${companyDetails.company_name}_${new Date().getTime()}.pdf`);
+      pdf.save(`Payment_receipt_${companyDetails?.company_name || 'receipt'}_${Date.now()}.pdf`);
 
       // Show success message
       showToastMessage('Receipt downloaded successfully!', 'success');
@@ -133,17 +196,44 @@ const PaymentHistory = () => {
 
     } catch (error) {
       console.error('Error generating PDF:', error);
-
-      // Show error message
       showToastMessage('Error generating receipt. Please try again.', 'error');
 
       // Reset button
-      const downloadBtn = document.querySelector('.receipt-download-btn');
+      const downloadBtn = document.querySelector('.receipt-premium-download');
       if (downloadBtn) {
         downloadBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Receipt';
         downloadBtn.disabled = false;
       }
     }
+  };
+
+  //  Alternative image to base64 converter using canvas
+  const convertImageToBase64Alternative = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        try {
+          const base64 = canvas.toDataURL('image/png');
+          resolve(base64);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      img.onerror = () => {
+        reject(new Error(`Failed to load image: ${url}`));
+      };
+
+      // Add timestamp to avoid cache issues
+      img.src = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+    });
   };
 
   // Helper function for toast message (if you don't have one)
@@ -398,7 +488,7 @@ const PaymentHistory = () => {
           </table>
         </div>
 
-        {paymentData.length > 0 && (
+        {paymentData.length > 0  && totalPages > 1 && (
           <div className="payment-pagination-premium-controls bottom">
             <div className="payment-pagination-buttons-premium">
               <button
@@ -455,19 +545,19 @@ const PaymentHistory = () => {
           </div>
         )}
 
-   {selectedPayment && (
-  <div className="payment-modal-overlay" onClick={() => setSelectedPayment(null)}>
-    <div className="payment-modal-container" onClick={(e) => e.stopPropagation()}>
-      <div className="payment-modal-header">
-        <h3 className="payment-modal-title">Payment Details</h3>
-        <button className="payment-modal-close" onClick={() => setSelectedPayment(null)}>
-          <XCircle size={20} />
-        </button>
-      </div>
-      
-      <div className="payment-modal-body">
-        {/* Receipt Number */}
-        {/* <div className="payment-info-row">
+        {selectedPayment && (
+          <div className="payment-modal-overlay" onClick={() => setSelectedPayment(null)}>
+            <div className="payment-modal-container" onClick={(e) => e.stopPropagation()}>
+              <div className="payment-modal-header">
+                <h3 className="payment-modal-title">Payment Details</h3>
+                <button className="payment-modal-close" onClick={() => setSelectedPayment(null)}>
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              <div className="payment-modal-body">
+                {/* Receipt Number */}
+                {/* <div className="payment-info-row">
           <div className="payment-info-left">
             <Receipt className="payment-info-icon" size={18} />
             <span className="payment-info-label">Receipt Number</span>
@@ -477,72 +567,103 @@ const PaymentHistory = () => {
           </div>
         </div> */}
 
-        {/* Date */}
-        <div className="payment-info-row">
-          <div className="payment-info-left">
-            <Calendar className="payment-info-icon" size={18} />
-            <span className="payment-info-label">Transaction Date</span>
-          </div>
-          <div className="payment-info-right">
-            <span className="payment-info-value">
-              {new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-              })}
-            </span>
-          </div>
-        </div>
+                {/* Date */}
+                <div className="payment-info-row">
+                  <div className="payment-info-left">
+                    <Calendar className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Transaction Date</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className="payment-info-value">
+                      {new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                      })}
+                    </span>
+                  </div>
+                </div>
 
-        {/* Payment Purpose */}
-        <div className="payment-info-row">
-          <div className="payment-info-left">
-            <Tag className="payment-info-icon" size={18} />
-            <span className="payment-info-label">Payment Purpose</span>
-          </div>
-          <div className="payment-info-right">
-            <span className="payment-info-value">{selectedPayment.purpose.pay_purpose}</span>
-          </div>
-        </div>
+                {/* Payment Purpose */}
+                <div className="payment-info-row">
+                  <div className="payment-info-left">
+                    <Tag className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Payment Purpose</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className="payment-info-value">{selectedPayment.purpose.pay_purpose}</span>
+                  </div>
+                </div>
 
-        {/* Amount */}
-        <div className="payment-info-row payment-amount-row">
-          <div className="payment-info-left">
-            <IndianRupeeIcon className="payment-info-icon" size={18} />
-            <span className="payment-info-label">Received Amount</span>
-          </div>
-          <div className="payment-info-right">
-            <span className="payment-amount-value">₹{selectedPayment.pay_received}</span>
-          </div>
-        </div>
+                <div className="payment-info-row">
+                  <div className="payment-info-left">
+                    <Wallet className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Total Amount</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className="payment-info-value">₹{payment?.total_amount}</span>
+                  </div>
+                </div>
 
-        {/* Bank */}
-        <div className="payment-info-row">
-          <div className="payment-info-left">
-            <Building2 className="payment-info-icon" size={18} />
-            <span className="payment-info-label">Bank</span>
-          </div>
-          <div className="payment-info-right">
-            <span className="payment-info-value">{selectedPayment.bank.bank_nm}</span>
-          </div>
-        </div>
+                {/* Amount */}
+                <div className="payment-info-row paid-amount-row">
+                  <div className="payment-info-left">
+                    <IndianRupeeIcon className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Last Payment Amount</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className="payment-amount-value">₹{selectedPayment.pay_received}</span>
+                  </div>
+                </div>
 
-        {/* Status */}
-        <div className="payment-info-row">
-          <div className="payment-info-left">
-            <CreditCard className="payment-info-icon" size={18} />
-            <span className="payment-info-label">Status</span>
+                <div className="payment-info-row">
+                  <div className="payment-info-left">
+                    <CheckCircle className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Total Paid</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className="payment-info-value">₹{selectedPayment?.tot_paid}</span>
+                  </div>
+                </div>
+                {payment?.bal_amt > 0 && (
+                  <div className="payment-info-row balance-amount-row" >
+                    <div className="payment-info-left">
+                      <InfoIcon className="payment-info-icon" size={18} />
+                      <span className="payment-info-label">Balance Amount</span>
+                    </div>
+                    <div className="payment-info-right">
+                      <span className="balance-amount-value">₹{selectedPayment?.bal_amt}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bank */}
+                <div className="payment-info-row">
+                  <div className="payment-info-left">
+                    <Building2 className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Bank</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className="payment-info-value">{selectedPayment.bank.bank_nm}</span>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="payment-info-row">
+                  <div className="payment-info-left">
+                    <CreditCard className="payment-info-icon" size={18} />
+                    <span className="payment-info-label">Status</span>
+                  </div>
+                  <div className="payment-info-right">
+                    <span className={`payment-status payment-status-${selectedPayment.pay_status}`}>
+                      {capsLetter(selectedPayment.pay_status)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="payment-info-right">
-            <span className={`payment-status payment-status-${selectedPayment.pay_status}`}>
-              {capsLetter(selectedPayment.pay_status)}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+        )}
 
         {downloadReceipt && (
           <div className="receipt-premium-overlay" onClick={() => setDownloadReceipt(null)}>
@@ -564,6 +685,9 @@ const PaymentHistory = () => {
               <FileText size={18} />
               <span>RECEIPT</span>
             </div> */}
+                  <div className='receipt-company-logo-container'>
+                    <img src={logo} className='receipt-company-logo' />
+                  </div>
 
                   <div className="receipt-premium-company">
                     <h3>{companyDetails.company_name}</h3>
@@ -590,10 +714,10 @@ const PaymentHistory = () => {
 
                   {/* Section 1: Customer Details */}
                   <div className="receipt-premium-section">
-                    <h4>Customer Details</h4>
+                    <h4>Scholar Details</h4>
                     <div className="receipt-premium-info-row">
                       <div className="receipt-premium-info-item">
-                        <label>Customer Name</label>
+                        <label>Scholar Name</label>
                         <p>{scholarDetails.user_name}</p>
                       </div>
                       <div className="receipt-premium-info-item">
@@ -632,17 +756,23 @@ const PaymentHistory = () => {
                         </tr>
 
                         <tr className="highlight-row">
-                          <th>Paid Amount</th>
+                          <th>Last Payment Amount</th>
                           <td>₹{downloadReceipt.pay_received}</td>
                         </tr>
 
                         <tr>
-                          <th>Balance Amount</th>
-                          <td>₹{downloadReceipt.bal_amt}</td>
+                          <th>Total Paid</th>
+                          <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
+                        {downloadReceipt?.bal_amt > 0 && (
+                          <tr className="balance-row">
+                            <th>Balance Amount</th>
+                            <td>₹{downloadReceipt.bal_amt}</td>
+                          </tr>
+                        )}
 
                         <tr className="full-width-row">
-                          <th>Amount in Words</th>
+                          <th>Last Payment Amount in Words</th>
                           <td>
                             {numberToWords(downloadReceipt.pay_received)} Rupees Only
                           </td>
@@ -659,10 +789,10 @@ const PaymentHistory = () => {
                         <label>Payment Method</label>
                         <p>Bank Transfer - {downloadReceipt.bank.bank_nm}</p>
                       </div>
-                      <div className="receipt-premium-info-item">
+                      {/* <div className="receipt-premium-info-item">
                         <label>Transaction ID</label>
                         <p>{downloadReceipt.id || 'N/A'}</p>
-                      </div>
+                      </div> */}
                       <div className="receipt-premium-info-item">
                         <label>Account Status</label>
                         <p>{scholarDetails.gst_status === "gst" ? "Account 1" : "Account 2"}</p>

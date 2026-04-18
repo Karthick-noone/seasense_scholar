@@ -155,8 +155,6 @@ const Dashboard = () => {
       icon: CheckCircle,
       label: 'Total Paid',
       value: `₹${totalPaid.toLocaleString()}`,
-      change: '+8.2%',
-      trend: 'up',
       color: '#10b981',
       bgColor: 'rgba(16, 185, 129, 0.1)'
     },
@@ -166,8 +164,7 @@ const Dashboard = () => {
       value: pendingPayment === 0
         ? 'No pending payment'
         : `₹${pendingPayment.toLocaleString()}`,
-      change: '+12.5%',
-      trend: 'up',
+
       color: '#f59e0b',
       bgColor: 'rgba(245, 158, 11, 0.1)',
       isZero: pendingPayment === 0
@@ -177,8 +174,7 @@ const Dashboard = () => {
       label: 'Resolved Complaints',
       value: resolvedComplaints,
       // value: 10,
-      change: '+15%',
-      trend: 'up',
+
       color: '#8b5cf6',
       bgColor: 'rgba(139, 92, 246, 0.1)'
     },
@@ -186,11 +182,14 @@ const Dashboard = () => {
       icon: AlertCircle,
       label: 'Pending Complaints',
       // value: 10,
-      value: pendingComplaints,
-      change: '-25%',
-      trend: 'down',
+      value: pendingComplaints === 0
+        ? 'No pending complaints'
+        : `₹${pendingComplaints.toLocaleString()}`,
+
       color: '#ef4444',
-      bgColor: 'rgba(239, 68, 68, 0.1)'
+      bgColor: 'rgba(239, 68, 68, 0.1)',
+      isZero: pendingComplaints === 0
+
     },
   ];
 
@@ -214,9 +213,9 @@ const Dashboard = () => {
           day: '2-digit',
           month: 'short',
           year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
+          // hour: '2-digit',
+          // minute: '2-digit',
+          // hour12: true
         }),
         status: payment?.pay_status,
         amount: payment?.pay_received || 0
@@ -237,9 +236,9 @@ const Dashboard = () => {
           day: '2-digit',
           month: 'short',
           year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
+          // hour: '2-digit',
+          // minute: '2-digit',
+          // hour12: true
         }),
         status:
           complaint?.resolve_status === "resolved" && complaint?.reply_content
@@ -292,14 +291,31 @@ const Dashboard = () => {
   //   );
   // }
 
+
+const getShortDescription = (description) => {
+  if (!description) return '';
+
+  if (description.length <= 30) return description;
+
+  const trimmed = description.substring(0, 30);
+
+  //  If no space (single word), just cut directly
+  if (!trimmed.includes(' ')) {
+    return trimmed + '...';
+  }
+
+  //  Otherwise cut at last full word
+  return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+};
+
   return (
     <div className="dashboard-premium">
       <div className="dashboard-limit">
         {/* Header Section */}
         <div className="dashboard-premium-header">
           <div className="header-left">
-            <h1>Welcome back, {scholar.user_name || 'Scholar'}!</h1>
-            <p>{company.company_name || "Sea Sense Interdisciplinary Research and IT Solution (OPC) Pvt.Ltd."}</p>
+            <h1>Welcome, {scholar?.user_name || 'Scholar'}!</h1>
+            <p>{company?.company_name || "Sea Sense Interdisciplinary Research and IT Solution (OPC) Pvt.Ltd."}</p>
           </div>
           {/* <div className="header-right">
           <button className="header-btn">
@@ -335,10 +351,10 @@ const Dashboard = () => {
                   )}
 
                   <div>
-                    <div className="stat-premium-value">{stat.value}</div>
+                    <div className="stat-premium-value" style={{fontSize: stat.isZero ? "14px" : '', textAlign: stat.isZero ? "center" : ''}}>{stat.value}</div>
 
                     {!stat.isZero && (
-                      <div className="stat-premium-label">{stat.label}</div>
+                      <div className="dashboard-stat-premium-label">{stat.label}</div>
                     )}
                   </div>
 
@@ -455,7 +471,7 @@ const Dashboard = () => {
                       )}
 
                       {activity.complaint && (
-                        <span className="activity-complaint">{activity.complaint}</span>
+                        <span className="activity-complaint" title={activity.complaint}>{getShortDescription(activity.complaint)}</span>
                       )}
 
                       <span className="activity-date">{activity.date || ''}</span>
@@ -506,7 +522,7 @@ const Dashboard = () => {
             </div>
             <div className="payment-summary-mini">
               <div className="summary-row">
-                <span>Total Project Value</span>
+                <span>Total Amount</span>
                 <strong>₹{(totalPaid + pendingPayment).toLocaleString()}</strong>
               </div>
               <div className="summary-row">

@@ -24,13 +24,18 @@ import {
   Trash2,
   AlertCircle,
   XCircle,
-  Notebook
+  Notebook,
+  Globe,
+  UserCog,
+  UserCog2,
+  UserPen
 } from 'lucide-react';
 import './Profile.css';
 import { secureStorage } from '../../utils/secureStorage';
 import { useScholar } from '../../hooks/useScholar';
 import { useUploadProfileImage, useDeleteProfileImage } from "../../hooks/useProfile";
 import { useLastWorkStatus } from "../../hooks/useWorkDetails";
+import ImagePreviewModal from './ImagePreviewModal';
 
 
 const Profile = () => {
@@ -38,7 +43,17 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [hoverImage, setHoverImage] = useState(false);
   const [hoverCamera, setHoverCamera] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [, setScholarImage] = useState(null); // Your image state
 
+  const handleImageView = () => {
+    if (scholarImage) {
+      setShowImagePreview(true);
+    } else {
+      // Open file picker if no image
+      fileInputRef.current.click();
+    }
+  };
   const fileInputRef = useRef(null);
 
   const scholar = secureStorage.getScholar();
@@ -83,13 +98,6 @@ const Profile = () => {
     { icon: Star, label: 'Rating', value: '4.8', change: '+0.3', color: '#f59e0b' }
   ];
 
-  // Timeline data
-  const timeline = [
-    { title: 'Joined as PhD Scholar', date: 'Sep 2023', status: 'completed', description: 'Started research journey in Computer Science' },
-    { title: 'First Publication', date: 'Mar 2024', status: 'completed', description: 'Paper published in International Conference' },
-    { title: 'Project Phase 1 Complete', date: 'Jun 2024', status: 'completed', description: 'Successfully delivered first milestone' },
-    { title: 'Current Phase', date: 'Present', status: 'active', description: 'Working on final research submission' }
-  ];
 
   //   useEffect(() => {
   //     setTimeout(() => {
@@ -188,14 +196,14 @@ const Profile = () => {
                 <div className="info-premium-item">
                   <label>Domain</label>
                   <div className="info-value">
-                    <Users size={14} />
+                    <Globe size={14} />
                     <span>{scholarData?.domain.domain}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
                   <label>Journal Index</label>
                   <div className="info-value">
-                    <Users size={14} />
+                    <BookOpen size={14} />
                     <span>{scholarData?.journal_index.journal_index}</span>
                   </div>
                 </div>
@@ -204,14 +212,14 @@ const Profile = () => {
                 <div className="info-premium-item">
                   <label>Technical Expert</label>
                   <div className="info-value">
-                    <Users size={14} />
+                    <UserCog size={14} />
                     <span>{scholarData?.tech_expert.staff_name}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
                   <label>Technical Expert Contact</label>
                   <div className="info-value">
-                    <Users size={14} />
+                    <Phone size={14} />
                     <span>+91 {scholarData?.tech_expert.staff_contact}</span>
                   </div>
                 </div>
@@ -232,7 +240,7 @@ const Profile = () => {
                 <div className="info-premium-item full-width">
                   <label>Work Description</label>
                   <div className="info-value bio">
-                    <FileText size={14} />
+                    <Notebook size={14} />
                     <p>{scholar?.work_description}</p>
                   </div>
                 </div>
@@ -311,6 +319,7 @@ const Profile = () => {
                       src={scholarImage}
                       alt="Profile"
                       className="avatar-premium-image"
+                      onClick={handleImageView}
                     />
                   ) : (
                     <div className="avatar-premium-placeholder">
@@ -333,7 +342,7 @@ const Profile = () => {
 
 
               <h2>{scholar?.user_name}</h2>
-              <p className="profile-role-premium">PhD Scholar</p>
+              <p className="profile-role-premium">Scholar</p>
               <div className="profile-badge-premium">{scholar?.user_id}</div>
 
               {/* Social Links */}
@@ -384,7 +393,7 @@ const Profile = () => {
                     day: "2-digit",
                     month: "short",
                     year: "numeric"
-                  })}</span>
+                  })} (Reg date)</span>
                 </div>
                 {/* <div className="contact-premium-item">
                   <MapPin size={16} />
@@ -415,7 +424,7 @@ const Profile = () => {
                   </div>
                   <div className="confirmation-modal-body">
                     <p>Are you sure you want to delete your profile image?</p>
-                    <p className="warning-text">This action cannot be undone.</p>
+                    {/* <p className="warning-text">This action cannot be undone.</p> */}
                   </div>
                   <div className="confirmation-modal-footer">
                     <button className="confirmation-btn cancel" onClick={cancelDelete}>
@@ -427,6 +436,14 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+            {showImagePreview && scholarImage && (
+              <ImagePreviewModal
+                imageUrl={scholarImage}
+                onClose={() => setShowImagePreview(false)}
+                onDelete={handleDeleteImage}
+              />
             )}
 
           </div>
