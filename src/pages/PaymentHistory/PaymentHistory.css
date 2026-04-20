@@ -22,9 +22,9 @@
 }
 
 .payment-header {
-  position: sticky;
+  /* position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 10; */
   background: var(--card-bg);
   display: flex;
   justify-content: space-between;
@@ -1277,6 +1277,23 @@
   animation: modalSlideIn 0.2s ease;
 }
 
+.payment-completed-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.payment-completed-message {
+
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-top: 10px;
+  letter-spacing: 0.3px;
+  /* width: 100px; */
+}
 @keyframes modalSlideIn {
   from {
     opacity: 0;
@@ -1361,7 +1378,7 @@
 
 /* Body */
 .payment-modal-body {
-  padding: 20px 24px;
+  padding: 15px 24px ;
 }
 
 /* Info Rows - Left Right Layout */

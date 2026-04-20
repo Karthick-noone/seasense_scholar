@@ -34,10 +34,16 @@
   display: none;
 }
 
-.dashboard-premium-header {
+.sticky-top-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index:20;
+}
+
+.dashboard-premium-header {
+  /* position: sticky;
+  top: 0;
+  z-index: 10; */
   background: var(--card-bg);
   display: flex;
   justify-content: space-between;

@@ -92,9 +92,9 @@ const ResetPassword = ({
             if (showSuccessAlertMessage) {
               showSuccessAlertMessage('Password reset successfully!');
             }
-            setTimeout(() => {
+            // setTimeout(() => {
               onComplete();
-            }, 1500);
+            // }, 1500);
           },
           onError: (error) => {
             const errorMessage = error.response?.data?.message || 'Failed to reset password. Please try again.';

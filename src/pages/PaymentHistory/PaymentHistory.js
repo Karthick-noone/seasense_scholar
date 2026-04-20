@@ -342,6 +342,7 @@ const PaymentHistory = () => {
   return (
     <div className="payment-history-page">
       <div className="payment-limit">
+        <div className='sticky-top-header'></div>
 
         <div className="payment-header">
           <div>
@@ -625,7 +626,7 @@ const PaymentHistory = () => {
                     <span className="payment-info-value">₹{selectedPayment?.tot_paid}</span>
                   </div>
                 </div>
-                {payment?.bal_amt > 0 && (
+                {selectedPayment?.bal_amt > 0 && (
                   <div className="payment-info-row balance-amount-row" >
                     <div className="payment-info-left">
                       <InfoIcon className="payment-info-icon" size={18} />
@@ -660,6 +661,9 @@ const PaymentHistory = () => {
                     </span>
                   </div>
                 </div>
+                 {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
+                  <div className="payment-completed-container"><span className="payment-completed-message">✓ Payment Completed</span></div>
+                )}
               </div>
             </div>
           </div>
@@ -764,12 +768,12 @@ const PaymentHistory = () => {
                           <th>Total Paid</th>
                           <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
-                        {downloadReceipt?.bal_amt > 0 && (
+                        {/* {downloadReceipt?.bal_amt > 0 && ( */}
                           <tr className="balance-row">
                             <th>Balance Amount</th>
                             <td>₹{downloadReceipt.bal_amt}</td>
                           </tr>
-                        )}
+                        {/* )} */}
 
                         <tr className="full-width-row">
                           <th>Last Payment Amount in Words</th>

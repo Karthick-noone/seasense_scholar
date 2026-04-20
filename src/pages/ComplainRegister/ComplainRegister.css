@@ -23,9 +23,9 @@
 }
 /* Header Section */
 .complaint-dashboard-header {
-    position: sticky;
+    /* position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 10; */
   background: var(--card-bg);
   display: flex;
   justify-content: space-between;
@@ -584,7 +584,7 @@
   }
 
   .complaint-table-wrapper {
-    max-width: 365px;
+    /* max-width: 365px; */
     zoom: .9;
   }
   .complaint-table-responsive {

@@ -235,6 +235,7 @@ const ChangePassword = () => {
     return (
         <div className="changepass-premium">
             <div className="changepass-limit">
+                <div className='sticky-top-header'></div>
 
                 {/* <div className="changepass-premium-header"> */}
                 <div className="changepass-premium-title">

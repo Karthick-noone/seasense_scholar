@@ -4,7 +4,8 @@ import OtpVerification from './OtpVerification';
 import ResetPassword from './ResetPassword';
 import './ForgetPassword.css';
 import { Link } from 'react-router-dom';
-import { useResetPassword, useSendOtp, useVerifyOtpLocally } from '../../hooks/useForgotPassword';
+import { useResetPassword, useSendOtp, useVerifyOtp, useVerifyOtpLocally } from '../../hooks/useForgotPassword';
+import { secureStorage } from '../../utils/secureStorage';
 
 const ForgetPassword = () => {
   const [step, setStep] = useState(1);
@@ -21,9 +22,13 @@ const ForgetPassword = () => {
 
   // Hooks
   const { mutate: sendOtpMutation, isPending: isSendingOtp, error: sendOtpError } = useSendOtp();
-  const { verifyOtp } = useVerifyOtpLocally();
+  // const { verifyOtp } = useVerifyOtpLocally();
   const { mutate: resetPasswordMutation, isPending: isResettingPassword, error: resetError } = useResetPassword();
   const [userData, setUserData] = useState(null);
+  const { mutateAsync: verifyOtp } = useVerifyOtp();
+  const scholar = secureStorage.getScholar();
+
+  const userId = scholar?.user_id
 
   const validateForm = () => {
     const newErrors = {};
@@ -91,7 +96,7 @@ const ForgetPassword = () => {
 
             // Redirect to OTP verification page after alert
             // setTimeout(() => {
-              setStep(2);
+            setStep(2);
             // }, 1000);
           },
           onError: (error) => {
@@ -106,32 +111,39 @@ const ForgetPassword = () => {
     }
   };
 
-  const handleOtpVerified = async (enteredOtp) => {
-    if (!encryptedOtp) {
-      const error = new Error('No OTP found. Please request a new one.');
-      setErrors({ otp: error.message });
-      throw error;
+const handleOtpVerified = async ({ otp, user_id }) => {
+  if (!otp) {
+    const error = new Error("Please enter OTP");
+    setErrors({ otp: error.message });
+    throw error;
+  }
+
+  try {
+    const response = await verifyOtp({
+      user_id,
+      otp,
+    });
+
+    if (response?.data?.status_code === 200 || response?.data?.status === "success") {
+      showSuccessAlertMessage("OTP verified successfully!");
+
+      // setTimeout(() => {
+        setStep(3);
+      // }, 1500);
+    } else {
+      throw new Error(response?.data?.message || "Invalid OTP");
     }
 
-    try {
-      const isValid = await verifyOtp(encryptedOtp, enteredOtp);
-
-      if (isValid) {
-        showSuccessAlertMessage('OTP verified successfully!');
-        setTimeout(() => {
-          setStep(3);
-        }, 1500);
-      } else {
-        //  Important: Throw error for invalid OTP
-        const error = new Error('Invalid OTP. Please try again.');
-        setErrors({ otp: error.message });
-        throw error;
-      }
-    } catch (error) {
-      setErrors({ otp: error?.message || 'Error verifying OTP. Please try again.' });
-      throw error;
-    }
-  };
+  } catch (error) {
+    setErrors({
+      otp:
+        error?.response?.data?.message ||
+        error.message ||
+        "OTP verification failed",
+    });
+    throw error;
+  }
+};
 
   const handleBackToRequest = () => {
     setStep(1);
@@ -293,6 +305,7 @@ const ForgetPassword = () => {
             <OtpVerification
               email={verificationData.email}
               scholarId={verificationData.scholarId}
+              userId={userData?.userId}
               onVerified={handleOtpVerified}
               onBack={handleBackToRequest}
               isVerifying={false}

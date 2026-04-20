@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mail, User, RefreshCw, Clock, ArrowLeft, CheckCircle, AlertCircle, Shield } from 'lucide-react';
 import './ForgetPassword.css';
 import { useSendOtp } from '../../hooks/useForgotPassword';
+import { secureStorage } from '../../utils/secureStorage';
 
 const OtpVerification = ({
   email,
   scholarId,
   onVerified,
   onBack,
+  userId,
   verifyError,
   onClearError
 }) => {
@@ -65,25 +67,28 @@ const OtpVerification = ({
     }
   };
 
-  const handleVerify = async () => {
-    const enteredOtp = otp.join('');
+const handleVerify = async () => {
+  const enteredOtp = otp.join('');
 
-    if (enteredOtp.length !== 6) {
-      setLocalError('Please enter the complete 6-digit OTP');
-      setIsVerifying(false);
-      return;
-    }
+  if (enteredOtp.length !== 6) {
+    setLocalError('Please enter the complete 6-digit OTP');
+    setIsVerifying(false);
+    return;
+  }
 
-    setIsVerifying(true);
+  setIsVerifying(true);
 
-    try {
-      await onVerified(enteredOtp);
-    } catch (error) {
-      console.error("Verification error:", error);
-      setIsVerifying(false);
-      setLocalError(error?.message || 'Verification failed. Please try again.');
-    }
-  };
+  try {
+    await onVerified({
+      otp: enteredOtp,
+      user_id: userId, // ✅ sending correctly
+    });
+  } catch (error) {
+    console.error("Verification error:", error);
+    setIsVerifying(false);
+    setLocalError(error?.message || 'Verification failed. Please try again.');
+  }
+};
 
   const handleResendOnExpiry = () => {
     if (onClearError) onClearError();

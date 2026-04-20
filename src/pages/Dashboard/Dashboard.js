@@ -312,6 +312,7 @@ const getShortDescription = (description) => {
     <div className="dashboard-premium">
       <div className="dashboard-limit">
         {/* Header Section */}
+        <div className='sticky-top-header'></div>
         <div className="dashboard-premium-header">
           <div className="header-left">
             <h1>Welcome, {scholar?.user_name || 'Scholar'}!</h1>

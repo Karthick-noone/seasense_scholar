@@ -97,6 +97,9 @@ const Login = ({ onLogin }) => {
       {/* RIGHT SIDE - FORM */}
       <div className="login-form-container">
         <div className="login-card">
+          <div className='login-logo-container'>
+            <img src={logo} alt="Logo" className="login-logo-image2" />
+</div>
           <div className="login-header">
             <h2>Welcome back</h2>
             <p>Sign in to continue</p>
@@ -136,7 +139,7 @@ const Login = ({ onLogin }) => {
                   className="password-eye"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                 </button>
               </div>
             </div>

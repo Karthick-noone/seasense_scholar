@@ -12,11 +12,14 @@ const fetchScholar = async () => {
   return res.data.data; 
 };
 
-export const useScholar = () => {
+export const useScholar = (enabled = true) => {
+  const scholarId = secureStorage.getScholar()?.id;
+  
   return useQuery({
     queryKey: ["scholar"],
     queryFn: fetchScholar,
     staleTime: 1000 * 60 * 10,
-    enabled: !!secureStorage.getScholar()?.id, 
+    refetchOnMount: 'always',
+    enabled: !!scholarId && enabled, // ✅ Now accepts external enabled parameter
   });
 };

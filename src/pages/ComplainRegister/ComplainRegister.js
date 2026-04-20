@@ -254,9 +254,9 @@ const ComplainRegister = () => {
   };
 
   const getStatusBadge = (complaint) => {
-    if (complaint.resolve_status === 'resolved' && complaint.reply_content !== null) {
+    if (complaint.status === "Resolved" ) {
       return <span className="status-badge status-resolved">Resolved</span>;
-    } else if (complaint.resolve_status === null && complaint.reply_content !== null) {
+    } else if (complaint.status ==="In Progress") {
       return <span className="status-badge status-in-progress">In Progress</span>;
     } else {
       return <span className="status-badge status-pending">Pending</span>;
@@ -373,6 +373,8 @@ const ComplainRegister = () => {
   return (
     <div className="complaint-management-dashboard">
       <div className="complaint-limit">
+        <div className='sticky-top-header'></div>
+
         <div className="complaint-dashboard-header">
           <div className="complaint-header-content">
             <h1 className="complaint-dashboard-title">Complaint Management</h1>
@@ -519,7 +521,7 @@ const ComplainRegister = () => {
                         {getStatusBadge(complaint)}
                       </td>
                       <td className="complaint-table-cell" data-label="Rating">
-                        {(complaint.resolve_status === "resolved" && complaint.reply_content !== null) ? (
+                        {(complaint.status === "Resolved") ? (
 
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 

@@ -9,6 +9,7 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+
 .mandatory {
   color: #dc2626;
   margin-left: 2px;
@@ -141,7 +142,17 @@ body {
   padding: 24px;
   background: #ffffff;
 }
+
 .login-logo-image {
+  width: 180px;
+  object-fit: cover;
+}
+
+.login-logo-container {
+  display: none;
+}
+
+.login-logo-image2 {
   width: 180px;
   object-fit: cover;
 }
@@ -226,6 +237,7 @@ body {
   color: #cbd5e1;
   font-weight: 400;
 }
+
 .forgot-password {
   font-size: 13px;
   color: #2563eb;
@@ -233,6 +245,7 @@ body {
   cursor: pointer;
   transition: color 0.2s ease;
 }
+
 .password-eye {
   position: absolute;
   right: 14px;
@@ -338,6 +351,15 @@ body {
   .login-page {
     flex-direction: column;
   }
+  .login-logo-image2{
+    width: 150px;
+  }
+
+  .login-logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+  }
 
   .login-form-container {
     position: relative;
@@ -412,6 +434,12 @@ body {
 @media (max-width: 480px) {
   .login-brand {
     display: none;
+  }
+
+  .login-logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
   }
 
   .brand-content h1 {
