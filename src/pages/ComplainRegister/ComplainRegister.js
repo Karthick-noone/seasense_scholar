@@ -1,3 +1,4 @@
+// ComplainRegister.js - Updated with Enhanced Loader
 import React, { useEffect, useState } from 'react';
 import {
   AlertCircle,
@@ -12,7 +13,7 @@ import {
   MessageSquareMore,
   ThumbsUp,
   ThumbsDown,
-  Award,
+  Crown,
   Handshake,
   ChevronsLeft,
   ChevronLeft,
@@ -20,13 +21,17 @@ import {
   ChevronsRight,
   EditIcon,
   Trash2,
-  X
+  X,
+  Award,
+  Meh
 } from 'lucide-react';
 import { BsStarFill } from 'react-icons/bs';
 import './ComplainRegister.css';
 import { useComplaints, useCreateComplaint, useComplaintCounts, useUpdateRating, useDeleteComplaint } from '../../hooks/useComplaints';
 import { secureStorage } from '../../utils/secureStorage';
 import trashOff from './../../assets/img/recycle-bin.png';
+import { useLocation } from "react-router-dom";
+import Loader from './../../components/Loader/Loader';
 
 const ComplainRegister = () => {
   const [formData, setFormData] = useState({
@@ -41,6 +46,8 @@ const ComplainRegister = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [viewShowModal, setShowViewModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isDataReady, setIsDataReady] = useState(false);
 
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,6 +55,7 @@ const ComplainRegister = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+  
   // Fetch complaints from backend with pagination
   const {
     data: apiResponse,
@@ -55,13 +63,15 @@ const ComplainRegister = () => {
     isFetching,
     refetch
   } = useComplaints(currentPage, rowsPerPage, filterStatus, searchTerm);
+  
+  const location = useLocation();
+  
+  useEffect(() => {
+    if (location.state?.status) {
+      handleFilterChange(location.state.status);
+    }
+  }, [location.state]);
 
-
-  // const {data: apiComplaints = []} = useAllComplaints();
-
-  // const allComplaints = apiComplaints?.data || [];
-
-  // console.log("allComplaints", allComplaints)
   // Extract data from API response
   const complaints = apiResponse?.data || [];
   const pagination = apiResponse?.pagination || {};
@@ -76,16 +86,25 @@ const ComplainRegister = () => {
   const user_id = scholarDetails?.user_id;
   const date = new Date().toISOString().split('T')[0];
 
-  const { data: counts } = useComplaintCounts();
+  const { data: counts, isLoading: countsLoading } = useComplaintCounts();
+
+  // Track loading states
+  useEffect(() => {
+    // Check if both complaints data and counts data have loaded
+    if (!isLoading && !countsLoading && apiResponse !== undefined) {
+      // Small delay for smooth transition
+      setTimeout(() => {
+        setLoading(false);
+        setIsDataReady(true);
+      }, 100);
+    }
+  }, [isLoading, countsLoading, apiResponse]);
 
   // Stats calculations (from API data)
-  const totalComplaints = counts?.total_complaints;
-  const pendingComplaints = counts?.pending;
-  const inProgressComplaints = counts?.in_progress;
-  const resolvedComplaintsCount = counts?.resolved;
-
-
-
+  const totalComplaints = counts?.total_complaints || 0;
+  const pendingComplaints = counts?.pending || 0;
+  const inProgressComplaints = counts?.in_progress || 0;
+  const resolvedComplaintsCount = counts?.resolved || 0;
 
   const statsCards = [
     {
@@ -139,7 +158,6 @@ const ComplainRegister = () => {
     return newErrors;
   };
 
-
   const cancelDelete = () => {
     setShowDeleteConfirm(false);
     setSelectedComplaintId(null);
@@ -150,8 +168,6 @@ const ComplainRegister = () => {
     setShowDeleteConfirm(true);
   };
 
-
-
   const confirmDelete = () => {
     if (!selectedComplaintId) return;
 
@@ -159,16 +175,13 @@ const ComplainRegister = () => {
       onSuccess: () => {
         setSubmittedMessage('Complaint deleted successfully!');
         setSubmitted(true);
-
-        setShowDeleteConfirm(false);   //  now works properly
-        setSelectedComplaintId(null);  //  reset
-
+        setShowDeleteConfirm(false);
+        setSelectedComplaintId(null);
         setTimeout(() => setSubmitted(false), 3000);
       },
       onError: () => {
         setSubmittedMessage('Failed to delete complaint.');
         setSubmitted(true);
-
         setTimeout(() => setSubmitted(false), 3000);
       }
     });
@@ -192,7 +205,7 @@ const ComplainRegister = () => {
             setSubmitted(true);
             setShowModal(false);
             setFormData({ description: '' });
-            refetch(); // Refresh the list
+            refetch();
             setTimeout(() => setSubmitted(false), 3000);
           },
           onError: () => {
@@ -216,14 +229,16 @@ const ComplainRegister = () => {
     setSelectedComplaint(complaint);
     setShowViewModal(true);
   };
+  
   const { mutate: updateRating } = useUpdateRating();
 
   const handleRating = (complaintId, ratingValue) => {
     const ratingMap = {
-      excellent: 1,
-      veryGood: 2,
+      excellent: 5,
+      great: 4,
       good: 3,
-      bad: 4
+      average: 2,
+      bad: 1
     };
 
     updateRating(
@@ -235,17 +250,11 @@ const ComplainRegister = () => {
       },
       {
         onSuccess: () => {
-          setSubmittedMessage(
-            `Thank you for rating this response as ${ratingValue.toUpperCase()}!`
-          );
+          setSubmittedMessage(`Thank you for rating this response as ${ratingValue.toUpperCase()}!`);
           setSubmitted(true);
-
           setTimeout(() => setSubmitted(false), 3000);
           setShowRatingModal(false);
-
-          // refetch(); // optional (React Query already refetches)
         },
-
         onError: (err) => {
           console.error("Rating update failed:", err);
         },
@@ -254,9 +263,9 @@ const ComplainRegister = () => {
   };
 
   const getStatusBadge = (complaint) => {
-    if (complaint.status === "Resolved" ) {
+    if (complaint.status === "Resolved") {
       return <span className="status-badge status-resolved">Resolved</span>;
-    } else if (complaint.status ==="In Progress") {
+    } else if (complaint.status === "In Progress") {
       return <span className="status-badge status-in-progress">In Progress</span>;
     } else {
       return <span className="status-badge status-pending">Pending</span>;
@@ -265,10 +274,11 @@ const ComplainRegister = () => {
 
   const mapRatingToDisplay = (rating) => {
     switch (String(rating)) {
-      case "1": return "excellent";
-      case "2": return "veryGood";
+      case "1": return "bad";
+      case "2": return "average";
       case "3": return "good";
-      case "4": return "bad";
+      case "4": return "great";
+      case "5": return "excellent";
       default: return null;
     }
   };
@@ -279,11 +289,13 @@ const ComplainRegister = () => {
 
     switch (displayRating) {
       case 'excellent':
-        return <span className="rating-badge rating-excellent"><Award size={14} /> Excellent</span>;
-      case 'veryGood':
-        return <span className="rating-badge rating-very-good"><Handshake size={14} /> Very Good</span>;
+        return <span className="rating-badge rating-excellent"><Crown size={14} /> Excellent</span>;
+      case 'great':
+        return <span className="rating-badge rating-great"><Award size={14} /> Great</span>;
       case 'good':
         return <span className="rating-badge rating-good"><ThumbsUp size={14} /> Good</span>;
+      case 'average':
+        return <span className="rating-badge rating-average"><Meh size={14} /> Average</span>;
       case 'bad':
         return <span className="rating-badge rating-bad"><ThumbsDown size={14} /> Bad</span>;
       default:
@@ -293,36 +305,30 @@ const ComplainRegister = () => {
 
   const getShortDescription = (description) => {
     if (!description) return '';
-
     if (description.length <= 30) return description;
-
     const trimmed = description.substring(0, 15);
-
-    //  If no space (single word), just cut directly
     if (!trimmed.includes(' ')) {
       return trimmed + '...';
     }
-
-    //  Otherwise cut at last full word
     return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
   };
 
   // Handle filter change
   const handleFilterChange = (status) => {
     setFilterStatus(status);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
   // Handle search
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
   // Handle rows per page change
   const handleRowsPerPageChange = (e) => {
     setRowsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
   // Pagination handlers
@@ -369,6 +375,20 @@ const ComplainRegister = () => {
   // Calculate showing entries info
   const startEntry = (currentPage - 1) * rowsPerPage + 1;
   const endEntry = Math.min(currentPage * rowsPerPage, totalCount);
+
+  // Show enhanced loader while data is being fetched
+  if (loading) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader 
+          type="scholar" 
+          size="large" 
+          text="Loading complaints data...."
+        />
+      </div>
+    );
+  }
+
 
   return (
     <div className="complaint-management-dashboard">
@@ -443,12 +463,10 @@ const ComplainRegister = () => {
               className="complaint-search-input"
             />
             {searchTerm && (
-
               <X size={15} className="search-clear-icon" onClick={() => setSearchTerm('')} />
             )}
           </div>
         </div>
-
 
         {/* Complaints Table */}
         <div className="complaint-table-wrapper">
@@ -464,10 +482,9 @@ const ComplainRegister = () => {
                   <th className="complaint-table-head">Status</th>
                   <th className="complaint-table-head">Rating</th>
                   <th className="complaint-table-head">Delete</th>
-                </tr>
+                 </tr>
               </thead>
               <tbody className="complaint-table-body">
-
                 {isLoading || isFetching ? (
                   <tr className="complaint-loading-row">
                     <td colSpan="8" className="complaint-loading-cell">
@@ -475,17 +492,17 @@ const ComplainRegister = () => {
                         <div className="loading-spinner"></div>
                         <p>Loading complaints...</p>
                       </div>
-                    </td>
-                  </tr>
-                ) : (complaints.length > 0 ? (
+                     </td>
+                   </tr>
+                ) : complaints.length > 0 ? (
                   complaints.map(complaint => (
                     <tr key={complaint.id} className="complaint-table-row">
                       <td className="complaint-table-cell" data-label="ID">
                         <span className="complaint-id-cell">{complaint.ticket_id}</span>
-                      </td>
+                       </td>
                       <td className="complaint-table-cell" data-label="Description" title={complaint.complaint}>
                         {getShortDescription(complaint.complaint)}
-                      </td>
+                       </td>
                       <td className="complaint-table-cell" data-label="Actions">
                         <div className="complaint-action-buttons">
                           <button
@@ -496,14 +513,14 @@ const ComplainRegister = () => {
                             <Eye size={16} />
                           </button>
                         </div>
-                      </td>
+                       </td>
                       <td className="complaint-table-cell" data-label="Date">
                         {new Date(complaint.complt_reg_dt).toLocaleDateString("en-GB", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric"
                         })}
-                      </td>
+                       </td>
                       <td className="complaint-table-cell" data-label="Reply">
                         {complaint.reply_content ? (
                           <button
@@ -516,17 +533,14 @@ const ComplainRegister = () => {
                         ) : (
                           <span className="no-reply-text">No reply yet</span>
                         )}
-                      </td>
+                       </td>
                       <td className="complaint-table-cell" data-label="Status">
                         {getStatusBadge(complaint)}
-                      </td>
+                       </td>
                       <td className="complaint-table-cell" data-label="Rating">
-                        {(complaint.status === "Resolved") ? (
-
+                        {complaint.status === "Resolved" ? (
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-
                             {complaint.ratings && getRatingBadge(complaint.ratings)}
-
                             <button
                               className="view-rate-btn"
                               onClick={() => {
@@ -537,29 +551,22 @@ const ComplainRegister = () => {
                               {complaint.ratings ? <EditIcon size={14} /> : <BsStarFill size={14} />}
                               {complaint.ratings ? "Update" : "Rate"}
                             </button>
-
                           </div>
-
                         ) : (
-                          <span className="no-reply-text">No Rating</span>
+                          <span className="no-reply-text">No rating</span>
                         )}
-                      </td>
-                      <td className="complaint-table-cell" data-label="Status">
+                       </td>
+                      <td className="complaint-table-cell" data-label="Delete">
                         {complaint.reply_content === null ? (
-                          <div className="complaint-delete-button"
-                            onClick={() => handleDelete(complaint.id)}
-
-                          >
-                            <Trash2 size={16}
-                            />
+                          <div className="complaint-delete-button" onClick={() => handleDelete(complaint.id)}>
+                            <Trash2 size={16} />
                           </div>
-
                         ) : (
                           <div className="complaint-delete-off-button">
-                            <img src={trashOff} width={'20px'} />
+                            <img src={trashOff} width={'20px'} alt="Cannot delete" />
                           </div>
                         )}
-                      </td>
+                       </td>
                     </tr>
                   ))
                 ) : (
@@ -567,9 +574,9 @@ const ComplainRegister = () => {
                     <td colSpan="8" className="complaint-no-data-cell">
                       <AlertCircle size={48} />
                       <p className="complaint-no-data-text">No complaints found</p>
-                    </td>
-                  </tr>
-                ))}
+                     </td>
+                   </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -648,7 +655,6 @@ const ComplainRegister = () => {
           </div>
         )}
 
-
         {/* Success Toast */}
         {submitted && (
           <div className="complaint-success-toast">
@@ -722,7 +728,7 @@ const ComplainRegister = () => {
                   <div className="reply-section">
                     <label className="reply-label">Your Complaint:</label>
                     <div className="reply-content complaint-text">
-                      {selectedComplaint.complaint}
+                      <p>{selectedComplaint.complaint}</p>
                     </div>
                     <div className="reply-date">
                       Registered on: {new Date(selectedComplaint.complt_reg_dt).toLocaleDateString("en-GB", {
@@ -735,8 +741,8 @@ const ComplainRegister = () => {
 
                   <div className="reply-section">
                     <label className="reply-label">Response from Support:</label>
-                    <div className="reply-content response-text">
-                      {selectedComplaint.reply_content || "No response yet"}
+                    <div className="reply-content complaint-text">
+                      <p>{selectedComplaint.reply_content || "No response yet"}</p>
                     </div>
                     {selectedComplaint.reply_dt && (
                       <div className="reply-date">
@@ -759,7 +765,7 @@ const ComplainRegister = () => {
           <div className="complaint-modal-overlay" onClick={() => setShowRatingModal(false)}>
             <div className="complaint-modal-container reply-modal" onClick={(e) => e.stopPropagation()}>
               <div className="complaint-modal-header">
-                <h2 className="complaint-modal-title">Rate This Response</h2>
+                <h2 className="complaint-modal-title">Rate Our Response</h2>
                 <button className="complaint-modal-close-btn" onClick={() => setShowRatingModal(false)}>
                   <XCircle size={24} />
                 </button>
@@ -771,15 +777,15 @@ const ComplainRegister = () => {
                       className="rating-option excellent"
                       onClick={() => handleRating(selectedComplaint.id, 'excellent')}
                     >
-                      <Award size={20} />
+                      <Crown size={20} />
                       Excellent
                     </button>
                     <button
-                      className="rating-option very-good"
-                      onClick={() => handleRating(selectedComplaint.id, 'veryGood')}
+                      className="rating-option great"
+                      onClick={() => handleRating(selectedComplaint.id, 'great')}
                     >
-                      <Handshake size={20} />
-                      Very Good
+                      <Award size={20} />
+                      Great
                     </button>
                     <button
                       className="rating-option good"
@@ -787,6 +793,13 @@ const ComplainRegister = () => {
                     >
                       <ThumbsUp size={20} />
                       Good
+                    </button>
+                    <button
+                      className="rating-option average"
+                      onClick={() => handleRating(selectedComplaint.id, 'average')}
+                    >
+                      <Meh size={20} />
+                      Average
                     </button>
                     <button
                       className="rating-option bad"
@@ -802,6 +815,7 @@ const ComplainRegister = () => {
           </div>
         )}
 
+        {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <div className="modal-premium-overlay" onClick={cancelDelete}>
             <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
@@ -824,7 +838,6 @@ const ComplainRegister = () => {
               </div>
               <div className="confirmation-modal-body">
                 <p>Are you sure you want to delete this complaint?</p>
-                {/* <p className="warning-text">This action cannot be undone.</p> */}
               </div>
               <div className="confirmation-modal-footer">
                 <button className="confirmation-btn cancel" onClick={cancelDelete}>
@@ -851,7 +864,6 @@ const ComplainRegister = () => {
               <div className="complaint-modal-body">
                 <div className="reply-details">
                   <div className="reply-section">
-                    {/* <label className="reply-label">Description:</label> */}
                     <div className="reply-content complaint-text">
                       <p>{selectedComplaint.complaint}</p>
                     </div>

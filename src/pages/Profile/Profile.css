@@ -5,7 +5,7 @@
   /* min-height: 100vh; */
   background: var(--background);
   font-family: 'Inter', sans-serif;
-    max-height: 90vh;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
 }
@@ -43,7 +43,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ========== HEADER ========== */
@@ -108,7 +110,8 @@
   width: 140px;
   height: 140px;
   margin: 0 auto 20px;
-  overflow: visible; /* allow camera outside */
+  overflow: visible;
+  /* allow camera outside */
 }
 
 /* INNER circle (clips overlay perfectly) */
@@ -116,7 +119,8 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  overflow: hidden; /* 🔥 THIS FIXES YOUR ISSUE */
+  overflow: hidden;
+  /* 🔥 THIS FIXES YOUR ISSUE */
   position: relative;
 }
 
@@ -127,6 +131,7 @@
   height: 100%;
   border-radius: 50%;
 }
+
 /* .avatar-premium-image:hover {
   transform: scale(1.2);
   transition: all 0.3s ease;
@@ -140,8 +145,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%; /* 🔥 ensure circular overlay */
+  border-radius: 50%;
+  /* 🔥 ensure circular overlay */
 }
+
 .avatar-camera-wrapper {
 
   display: flex;
@@ -151,18 +158,21 @@
 }
 
 .avatar-camera-btn {
-  width: 33px;
-  height: 33px;
-  background: var(--hover-bg);
-  color: var(--text-primary);
+
+  position: absolute;
+  bottom: -3px;
+  right: 10px;
+  background: var(--card-bg);
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  z-index: 3;
+  /* color: white; */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   transition: all 0.25s ease;
+  cursor: pointer;
 }
 
 .avatar-camera-btn:hover {
@@ -170,10 +180,10 @@
   background: var(--primary-color);
   color: white;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
-  border: none;
 }
 
 .avatar-delete-btn {
+  position: absolute;
   width: 33px;
   height: 33px;
   background: var(--hover-bg);
@@ -187,7 +197,9 @@
   z-index: 3;
   transition: all 0.25s ease;
 }
-
+.progress-date {
+  min-width: 100px; /* increase as needed */
+}
 .avatar-delete-btn:hover {
   transform: scale(1.12);
   background: #ff4d4f;
@@ -201,7 +213,7 @@
   background: var(--hover-bg);
   color: #f5f5f5;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--border-color);
+  /* border: 1px solid var(--border-color); */
 }
 
 [data-theme="dark"] .avatar-camera-btn:hover {
@@ -213,6 +225,7 @@
   background: #ff4d4f;
   color: white;
 }
+
 .avatar-premium-image {
   width: 100%;
   height: 100%;
@@ -248,11 +261,12 @@
   transition: all 0.3s ease;
 }
 
-.profile-image-actions{
+.profile-image-actions {
   display: flex;
-  gap:15px;
+  gap: 15px;
   /* margin-top: 50px; */
 }
+
 .avatar-edit-overlay span {
   font-size: 12px;
   font-weight: 500;
@@ -262,14 +276,14 @@
   font-size: 22px;
   font-weight: 700;
   color: var(--text-color);
-  margin: 0 0 6px 0;
+  margin: 0 0 10px 0;
 }
 
 .profile-role-premium {
   font-size: 14px;
   color: var(--primary-color);
   font-weight: 500;
-  margin: 0 0 12px 0;
+  margin: 0 0 15px 0;
 }
 
 .profile-badge-premium {
@@ -525,8 +539,13 @@
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .progress-premium-stats {
@@ -548,6 +567,9 @@
   margin-left: auto;
 }
 
+.progress-icon {
+  width: 50px;
+}
 /* Timeline Card */
 .timeline-premium-card {
   background: var(--card-bg);
@@ -592,8 +614,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 .timeline-premium-line {
@@ -656,40 +685,43 @@
   .profile-premium {
     padding: 20px;
   }
-  
+
   .profile-premium-container {
     grid-template-columns: 1fr;
   }
-  
+
   .profile-left-column {
     order: 2;
   }
-  
+
   .profile-right-column {
     order: 1;
   }
-  
+
   .info-premium-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .info-premium-item.full-width {
     grid-column: span 1;
   }
-  
+
   .stats-premium-container {
     grid-template-columns: repeat(2, 1fr);
   }
 
-    .profile-page {
+  .profile-page {
     padding: 10px;
   }
+
   .profile-premium-header {
     padding: 20px;
   }
+
   .profile-premium-header h1 {
     font-size: 18px;
   }
+
   .profile-premium-header p {
     font-size: 13px;
   }
@@ -699,28 +731,29 @@
   .profile-premium {
     padding: 16px;
   }
-  
+
   .profile-premium-header h1 {
     font-size: 18px;
   }
-    .profile-premium-header p {
+
+  .profile-premium-header p {
     font-size: 13px;
   }
-  
+
   .stats-premium-container {
     grid-template-columns: 1fr;
   }
-  
+
   .progress-premium-stats {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .avatar-premium-wrapper {
     width: 120px;
     height: 120px;
   }
-  
+
   .info-premium-card,
   .progress-premium-card,
   .timeline-premium-card {
@@ -734,6 +767,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -749,12 +783,29 @@
   animation: fadeInUp 0.4s ease backwards;
 }
 
-.profile-avatar-card { animation-delay: 0.05s; }
-.stats-premium-container { animation-delay: 0.1s; }
-.contact-premium-card { animation-delay: 0.15s; }
-.info-premium-card { animation-delay: 0.2s; }
-.progress-premium-card { animation-delay: 0.25s; }
-.timeline-premium-card { animation-delay: 0.3s; }
+.profile-avatar-card {
+  animation-delay: 0.05s;
+}
+
+.stats-premium-container {
+  animation-delay: 0.1s;
+}
+
+.contact-premium-card {
+  animation-delay: 0.15s;
+}
+
+.info-premium-card {
+  animation-delay: 0.2s;
+}
+
+.progress-premium-card {
+  animation-delay: 0.25s;
+}
+
+.timeline-premium-card {
+  animation-delay: 0.3s;
+}
 
 /* Overlay Background */
 .modal-premium-overlay {
@@ -776,6 +827,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -798,6 +850,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -933,6 +986,7 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -1021,6 +1075,7 @@
   from {
     transform: scaleX(1);
   }
+
   to {
     transform: scaleX(0);
   }

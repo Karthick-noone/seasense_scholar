@@ -1,3 +1,4 @@
+// Profile.js - Updated with Enhanced Loader
 import React, { useState, useEffect, useRef } from 'react';
 import {
   User,
@@ -36,7 +37,7 @@ import { useScholar } from '../../hooks/useScholar';
 import { useUploadProfileImage, useDeleteProfileImage } from "../../hooks/useProfile";
 import { useLastWorkStatus } from "../../hooks/useWorkDetails";
 import ImagePreviewModal from './ImagePreviewModal';
-
+import Loader from './../../components/Loader/Loader';
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -44,39 +45,46 @@ const Profile = () => {
   const [hoverImage, setHoverImage] = useState(false);
   const [hoverCamera, setHoverCamera] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState(false);
-  const [, setScholarImage] = useState(null); // Your image state
-
+  const [isDataReady, setIsDataReady] = useState(false);
+  
   const handleImageView = () => {
     if (scholarImage) {
       setShowImagePreview(true);
     } else {
-      // Open file picker if no image
       fileInputRef.current.click();
     }
   };
+  
   const fileInputRef = useRef(null);
 
   const scholar = secureStorage.getScholar();
-  const { data: scholarData } = useScholar();
-  // console.log("SCholar data", scholar)
-  // console.log("SCholar datafhdfhdfd", scholarData)
+  const { data: scholarData, isLoading: scholarLoading } = useScholar();
+  const { data: lastStatus, isLoading: lastStatusLoading } = useLastWorkStatus();
 
   const scholarImage = scholarData?.scholar_profile
     ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
     : null;
 
   const [workProgress, setWorkProgress] = useState(0);
-
-  const { data: lastStatus } = useLastWorkStatus();
-
   const lastWorkStatus = lastStatus?.status;
+
+  // Track loading states
+  useEffect(() => {
+    // Check if both hooks have finished loading
+    if (!scholarLoading && !lastStatusLoading) {
+      // Small delay for smooth transition
+      setTimeout(() => {
+        setLoading(false);
+        setIsDataReady(true);
+      }, 100);
+    }
+  }, [scholarLoading, lastStatusLoading]);
 
   useEffect(() => {
     if (lastWorkStatus !== undefined) {
       setWorkProgress(Number(lastWorkStatus) || 0);
     }
   }, [lastWorkStatus]);
-
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -90,20 +98,6 @@ const Profile = () => {
 
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
-  // Stats data
-  const stats = [
-    { icon: BookOpen, label: 'Publications', value: '8', change: '+2', color: '#3b82f6' },
-    { icon: Award, label: 'Citations', value: '156', change: '+24', color: '#8b5cf6' },
-    { icon: TrendingUp, label: 'Projects', value: '5', change: '+1', color: '#10b981' },
-    { icon: Star, label: 'Rating', value: '4.8', change: '+0.3', color: '#f59e0b' }
-  ];
-
-
-  //   useEffect(() => {
-  //     setTimeout(() => {
-  //       setLoading(false);
-  //     }, 1000);
-  //   }, []);
 
   const handleImageClick = () => {
     fileInputRef.current.click();
@@ -111,32 +105,28 @@ const Profile = () => {
 
   const { mutate: uploadImage } = useUploadProfileImage();
 
-  // Add these toast styles to your CSS file
-  // Toast function without X icon, auto-closes after 3 seconds
- const showToast = (message, type = 'error') => {
-  // Remove any existing toast
-  const existingToast = document.querySelector('.custom-toast-notification');
-  if (existingToast) {
-    existingToast.remove();
-  }
+  // Toast function
+  const showToast = (message, type = 'error') => {
+    const existingToast = document.querySelector('.custom-toast-notification');
+    if (existingToast) {
+      existingToast.remove();
+    }
 
-  // Create toast element
-  const toast = document.createElement('div');
-  toast.className = `custom-toast-notification ${type}`;
-  
-  // Set icon based on type
-  let iconSvg = '';
-  if (type === 'success') {
-    iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-  } else if (type === 'error') {
-    iconSvg = `
+    const toast = document.createElement('div');
+    toast.className = `custom-toast-notification ${type}`;
+
+    let iconSvg = '';
+    if (type === 'success') {
+      iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    } else if (type === 'error') {
+      iconSvg = `
       <circle cx="12" cy="12" r="10" stroke="white" fill="none" stroke-width="2"/>
       <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
       <line x1="12" y1="16" x2="12.01" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     `;
-  }
-  
-  toast.innerHTML = `
+    }
+
+    toast.innerHTML = `
     <div class="toast-content">
       <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         ${iconSvg}
@@ -149,35 +139,32 @@ const Profile = () => {
     <div class="toast-progress-bar"></div>
   `;
 
-  document.body.appendChild(toast);
+    document.body.appendChild(toast);
 
-  // Auto remove after 4 seconds
-  setTimeout(() => {
-    if (toast && toast.parentNode) {
-      toast.classList.add('fade-out');
-      setTimeout(() => {
-        if (toast && toast.parentNode) {
-          toast.remove();
-        }
-      }, 300);
-    }
-  }, 4000);
-};
+    setTimeout(() => {
+      if (toast && toast.parentNode) {
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+          if (toast && toast.parentNode) {
+            toast.remove();
+          }
+        }, 300);
+      }
+    }, 4000);
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // File size validation (2MB = 2 * 1024 * 1024 bytes)
     const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
       const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-      showToast(`File size exceeds 2MB! (${fileSizeInMB}MB)`, 'error');
+      showToast(`File must be within 2 MB (selected: ${fileSizeInMB} MB)`, 'error');
       e.target.value = "";
       return;
     }
 
-    // File type validation
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
       showToast('Invalid file type! Please select JPEG, JPG, or PNG format.', 'error');
@@ -185,7 +172,6 @@ const Profile = () => {
       return;
     }
 
-    // Proceed with upload (no loading toast)
     const formData = new FormData();
     formData.append("scholar_profile", file);
 
@@ -200,6 +186,7 @@ const Profile = () => {
       }
     });
   };
+  
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDeleteImage = () => {
@@ -225,20 +212,22 @@ const Profile = () => {
   const cancelDelete = () => {
     setShowDeleteConfirm(false);
   };
-  //   if (loading) {
-  //     return (
-  //       <div className="profile-premium">
-  //         <div className="profile-loading">
-  //           <div className="loading-spinner"></div>
-  //           <p>Loading profile...</p>
-  //         </div>
-  //       </div>
-  //     );
-  //   }
 
   const capsLetter = (name) => {
-    if (!name) return;
+    if (!name) return '';
     return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  if (loading) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader 
+          type="scholar" 
+          size="large" 
+          text="Loading profile data...."
+        />
+      </div>
+    );
   }
 
   return (
@@ -265,67 +254,54 @@ const Profile = () => {
                 <h3>Work Information</h3>
               </div>
               <div className="info-premium-grid">
-                {/* <div className="info-premium-item">
-                  <label>Date of Registration</label>
-                  <div className="info-value">
-                    <Calendar size={14} />
-                    <span>{new Date(scholar?.reg_date).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric"
-                    })}
-                    </span>
-                  </div>
-                </div> */}
                 <div className="info-premium-item">
                   <label>Domain</label>
                   <div className="info-value">
                     <Globe size={14} />
-                    <span>{scholarData?.domain.domain}</span>
+                    <span>{scholarData?.domain?.domain || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
                   <label>Journal Index</label>
                   <div className="info-value">
                     <BookOpen size={14} />
-                    <span>{scholarData?.journal_index.journal_index}</span>
+                    <span>{scholarData?.journal_index?.journal_index || 'N/A'}</span>
                   </div>
                 </div>
-
 
                 <div className="info-premium-item">
                   <label>Technical Expert</label>
                   <div className="info-value">
                     <UserCog size={14} />
-                    <span>{scholarData?.tech_expert.staff_name}</span>
+                    <span>{scholarData?.tech_expert?.staff_name || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
                   <label>Technical Expert Contact</label>
                   <div className="info-value">
                     <Phone size={14} />
-                    <span>+91 {scholarData?.tech_expert.staff_contact}</span>
+                    <span>+91 {scholarData?.tech_expert?.staff_contact || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
                   <label>BDA Name</label>
                   <div className="info-value">
                     <Users size={14} />
-                    <span>{scholarData?.bda.bda_name}</span>
+                    <span>{scholarData?.bda?.bda_name || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
                   <label>BDA Contact</label>
                   <div className="info-value">
                     <Phone size={14} />
-                    <span>+91 {scholarData?.bda.bda_contact}</span>
+                    <span>+91 {scholarData?.bda?.bda_contact || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item full-width">
                   <label>Work Description</label>
                   <div className="info-value bio">
                     <Notebook size={14} />
-                    <p>{scholar?.work_description}</p>
+                    <p>{scholarData?.work_description || 'No work description available'}</p>
                   </div>
                 </div>
               </div>
@@ -343,28 +319,23 @@ const Profile = () => {
                 </div>
               </div>
               <div className="progress-premium-stats">
-                {lastStatus?.note && (<>
-
+                {lastStatus?.note && (
                   <div className="progress-stat">
-                    <Notebook size={14} />
+                    <Notebook size={14} className='progress-icon' />
                     <span>Notes:</span>
-                    {capsLetter(lastStatus?.note)}
+                    <span>{capsLetter(lastStatus?.note)}</span>
                   </div>
-                  <div className="progress-stat">
+                )}
+                {lastStatus?.date && (
+                  <div className="progress-stat progress-date">
                     <Calendar size={14} />
-                    {/* <span>Remaining</span> */}
-                    {new Date(lastStatus?.date).toLocaleString("en-GB", {
+                    <span>{new Date(lastStatus?.date).toLocaleString("en-GB", {
                       day: "2-digit",
                       month: 'short',
                       year: 'numeric'
-                    })}
+                    })}</span>
                   </div>
-                </>)}
-                {/* <div className="progress-stat">
-                  <Clock size={14} />
-                  <span>Remaining</span>
-                 {100 - workProgress}
-                </div> */}
+                )}
               </div>
             </div>
           </div>
@@ -376,22 +347,14 @@ const Profile = () => {
               onMouseEnter={() => setHoverCamera(true)}
               onMouseLeave={() => setHoverCamera(false)}
             >
-              {/* {(hoverCamera || isMobile) && ( */}
-              <div className="avatar-camera-wrapper">
-                <div className="avatar-camera-btn"
-                  onClick={handleImageClick}>
-                  <Camera size={15} />
-                </div>
-                {scholarImage && (
-                  <div className="avatar-delete-btn"
-                    onClick={handleDeleteImage}
-                  >
+              {(hoverCamera || isMobile) && scholarImage && (
+                <div className="avatar-camera-wrapper">
+                  <div className="avatar-delete-btn" onClick={handleDeleteImage}>
                     <Trash2 size={15} />
                   </div>
-                )}
-
-              </div>
-              {/* )} */}
+                </div>
+              )}
+              
               <div
                 className="avatar-premium-wrapper"
                 onMouseEnter={() => setHoverImage(true)}
@@ -407,14 +370,14 @@ const Profile = () => {
                     />
                   ) : (
                     <div className="avatar-premium-placeholder">
-                      <span>{scholar?.user_name?.charAt(0)}</span>
+                      <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
                     </div>
                   )}
-
-
                 </div>
 
-
+                <div className="avatar-camera-btn" onClick={handleImageClick}>
+                  <Camera size={15} />
+                </div>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -424,68 +387,53 @@ const Profile = () => {
                 />
               </div>
 
-
-              <h2>{scholar?.user_name}</h2>
+              <h2>{scholarData?.user_name || 'Scholar'}</h2>
               <p className="profile-role-premium">Scholar</p>
-              <div className="profile-badge-premium">{scholar?.user_id}</div>
-
-              {/* Social Links */}
-              {/* <div className="social-links">
-              <button className="social-btn">
-                <FileText size={16} />
-              </button>
-              <button className="social-btn">
-                <Github size={16} />
-              </button>
-              <button className="social-btn">
-                <Twitter size={16} />
-              </button>
-            </div> */}
+              <div className="profile-badge-premium">{scholarData?.user_id || 'Scholar Id'}</div>
             </div>
-
-            {/* Stats Grid */}
-            {/* <div className="stats-premium-container">
-            {stats.map((stat, index) => (
-              <div key={index} className="stat-premium-item">
-                <div className="stat-premium-icon" style={{ background: `${stat.color}15`, color: stat.color }}>
-                  <stat.icon size={20} />
-                </div>
-                <div className="stat-premium-info">
-                  <span className="stat-premium-value">{stat.value}</span>
-                  <span className="stat-premium-label">{stat.label}</span>
-                  <span className="stat-premium-change" style={{ color: stat.color }}>{stat.change}</span>
-                </div>
-              </div>
-            ))}
-          </div> */}
 
             {/* Contact Info */}
             <div className="contact-premium-card">
-              <h3>Scholar Information</h3>
+              <h3>Personal Information</h3>
               <div className="contact-premium-list">
                 <div className="contact-premium-item">
                   <Mail size={16} />
-                  <span>{scholar?.email}</span>
+                  <span>{scholarData?.email || 'N/A'}</span>
                 </div>
                 <div className="contact-premium-item">
                   <Phone size={16} />
-                  <span>{scholar?.contact}</span>
+                  <span>{scholar?.contact || 'N/A'}</span>
                 </div>
                 <div className="contact-premium-item">
                   <Calendar size={16} />
-                  <span>{new Date(scholar?.reg_date).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric"
-                  })} (Reg date)</span>
+                  <span>
+                    {scholar?.reg_date 
+                      ? new Date(scholar.reg_date).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric"
+                        }) 
+                      : 'N/A'} (Registration date)
+                  </span>
                 </div>
-                {/* <div className="contact-premium-item">
-                  <MapPin size={16} />
-                  <span>{scholar.address}</span>
-                </div> */}
               </div>
+              
+              {scholarData?.secondary_emails?.length > 0 && (
+                <>
+                  <h3 style={{ marginTop: "15px" }}>Secondary Emails</h3>
+                  <div className="contact-premium-list">
+                    {scholarData.secondary_emails.map((email, index) => (
+                      <div className="contact-premium-item" key={index}>
+                        <Mail size={16} />
+                        <span>{email}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
+            {/* Delete Confirmation Modal */}
             {showDeleteConfirm && (
               <div className="modal-premium-overlay" onClick={cancelDelete}>
                 <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
@@ -508,7 +456,6 @@ const Profile = () => {
                   </div>
                   <div className="confirmation-modal-body">
                     <p>Are you sure you want to delete your profile image?</p>
-                    {/* <p className="warning-text">This action cannot be undone.</p> */}
                   </div>
                   <div className="confirmation-modal-footer">
                     <button className="confirmation-btn cancel" onClick={cancelDelete}>
@@ -522,6 +469,7 @@ const Profile = () => {
               </div>
             )}
 
+            {/* Image Preview Modal */}
             {showImagePreview && scholarImage && (
               <ImagePreviewModal
                 imageUrl={scholarImage}
@@ -529,7 +477,6 @@ const Profile = () => {
                 onDelete={handleDeleteImage}
               />
             )}
-
           </div>
         </div>
       </div>

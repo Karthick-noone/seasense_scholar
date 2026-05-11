@@ -21,14 +21,19 @@ import './Sidebar.css';
 import logo from './../../assets/img/logo.png';
 import { secureStorage } from '../../utils/secureStorage';
 import { useLogout } from "../../hooks/useLogout";
+import { useScholar } from '../../hooks/useScholar';
+import { useTheme } from '../../contexts/ThemeContext';
 
-const Sidebar = ({ collapsed,  onToggle, mobileOpen, setMobileOpen }) => {
+const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-const { mutate: logout } = useLogout();
+  const { mutate: logout } = useLogout();
+  const { theme } = useTheme();
 
   const companyDetails = secureStorage.getCompany();
-  const companyLogo = `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
+  const { data: scholarData } = useScholar();
+
+  const companyLogo = `http://scholarapi.seasense.in/${scholarData?.company?.com_logo}` || logo;
   // const companyLogo = `${process.env.REACT_APP_BASE_URL}/${companyDetails?.com_logo}` || `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
 
   useEffect(() => {
@@ -70,7 +75,7 @@ const { mutate: logout } = useLogout();
         <div className="sidebar-premium-header">
           <div className="logo-premium-wrapper">
             <div className="logo-premium-icon">
-              <GraduationCap size={24} />
+              <GraduationCap size={26} />
             </div>
             {/* {(!collapsed || isMobile) && (
               <div className="logo-premium-text">
@@ -78,7 +83,10 @@ const { mutate: logout } = useLogout();
                 <span className="logo-premium-subtitle">Scholar Portal</span>
               </div>
             )} */}
-            {(!collapsed || isMobile) && <img src={companyLogo || logo } alt="Logo" className="logo-image" />}
+            {(!collapsed || isMobile) && <img src={companyLogo} alt="Logo"
+
+              className={`logo-image ${theme === "dark" ? "logo-white" : ""}`}
+            />}
 
           </div>
 

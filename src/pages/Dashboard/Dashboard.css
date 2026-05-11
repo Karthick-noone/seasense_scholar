@@ -578,36 +578,24 @@ transform: translateY(-4px);
   border-radius: 50%;
   z-index: 1;
 }
-
-.timeline-dot.approved {
-  background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
-
-.timeline-dot.completed {
-  background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
-
 .timeline-dot.pending {
   background: #f59e0b;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
 }
 
-.timeline-dot.Pending {
-  background: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
-}
-
-
-.timeline-dot.in_progress {
+.timeline-dot.in-progress {
   background: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
-.timeline-dot.In-Progress {
-  background: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+.timeline-dot.resolved {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.timeline-dot.approved {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
 .timeline-line {
@@ -657,10 +645,22 @@ transform: translateY(-4px);
   color: #10b981;
 }
 
-.activity-complaint {
+.activity-complaint-pending {
   font-size: 12px;
   font-weight: 600;
-  color: var(--danger-color);
+  color: #f59e0b;
+}
+
+.activity-complaint-in-progress {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.activity-complaint-resolved {
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
 }
 
 /* Deadlines List */
@@ -867,7 +867,7 @@ transform: translateY(-4px);
 .stats-header {
   display: flex;
   justify-content: flex-start;
-  gap: 40px;
+  gap: 60px;
   padding: 8px 0;
   font-size: 11px;
   font-weight: 600;
@@ -885,7 +885,7 @@ transform: translateY(-4px);
 }
 
 .stat-date {
-  width: 55px;
+  width: 75px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);

@@ -1,3 +1,4 @@
+// Dashboard.js - Fixed with proper animation timing
 import React, { useState, useEffect, useRef } from 'react';
 import {
   BookOpen,
@@ -27,92 +28,155 @@ import { getPaymentData } from '../../services/paymentService';
 import { useComplaintCounts, useComplaints } from '../../hooks/useComplaints';
 import { usePayments } from '../../hooks/usePayments';
 import { useWorkDetails, useLastWorkStatus } from "../../hooks/useWorkDetails";
-
+import { useScholar } from '../../hooks/useScholar';
+import { Link } from 'react-router-dom';
+import Loader from './../../components/Loader/Loader';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [pendingPayment, setPendingPayment] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
-
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
-
   const [workProgress, setWorkProgress] = useState(0);
+  const [isDataReady, setIsDataReady] = useState(false);
+  
+  // Store actual values for animation targets
+  const [targetPendingPayment, setTargetPendingPayment] = useState(0);
+  const [targetTotalPaid, setTargetTotalPaid] = useState(0);
+  const [targetResolvedComplaints, setTargetResolvedComplaints] = useState(0);
+  const [targetPendingComplaints, setTargetPendingComplaints] = useState(0);
+  const [targetWorkProgress, setTargetWorkProgress] = useState(0);
 
   const scholar = secureStorage.getScholar();
   const { data: paymentData = [] } = usePayments();
   const payment = paymentData[0];
 
   const { data: apiResponse } = useComplaints(1, 10, 'all', '');
-
   const complaint = apiResponse?.data?.[0];
 
-  // console.log("SCholor details", scholar)
   const company = secureStorage.getCompany();
   const { data: counts } = useComplaintCounts();
 
   const { data: work } = useWorkDetails();
   const workDetails = work?.[0];
-
   const workStatusList = workDetails?.work_dtls_sts || [];
 
-  // console.log("Work details", workDetails)
   const { data: lastStatus } = useLastWorkStatus();
-
   const lastWorkStatus = lastStatus?.status;
-  // console.log("lstWork details", lastWorkStatus)
+  const lastWorkStatusDate = lastStatus?.date;
+  const lastWorkStatusNote = lastStatus?.note;
 
   const [resolvedComplaints, setResolvedComplaints] = useState(0);
   const [pendingComplaints, setPendingComplaints] = useState(0);
 
+  const { data: companyData } = useScholar();
+
+  // Track data loading states
+  const [dataStates, setDataStates] = useState({
+    paymentsLoaded: false,
+    complaintsLoaded: false,
+    workLoaded: false,
+    countsLoaded: false,
+    scholarLoaded: false
+  });
+
+  // Set target values when data arrives
   useEffect(() => {
     if (counts) {
-      // console.log("Counts", counts);
-
-      animateCount(setResolvedComplaints, counts.resolved || 0);
-      animateCount(setPendingComplaints, counts.pending || 0);
+      setTargetResolvedComplaints(counts.resolved || 0);
+      setTargetPendingComplaints(counts.pending || 0);
+      setDataStates(prev => ({ ...prev, countsLoaded: true }));
     }
   }, [counts]);
 
-  // const [resolvedComplaints, setResolvedComplaints] = useState(counts?.resolved);
-  // const [pendingComplaints, setPendingComplaints] = useState(counts?.pending);
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const scholar = secureStorage.getScholar();
-        if (!scholar?.id) return;
+        const scholarData = secureStorage.getScholar();
+        if (!scholarData?.id) {
+          setLoading(false);
+          return;
+        }
 
-        const res = await getPaymentData(scholar.id);
+        const res = await getPaymentData(scholarData.id);
         const response = res.data;
+        const paymentDataFromApi = response.data?.[0];
 
-        const payment = response.data?.[0];
-
-        setLoading(false);
-
-        animateCount(setPendingPayment, Number(payment?.bal_amt) || 0);
-        animateCount(setTotalPaid, Number(payment?.tot_paid) || 0);
-
-        const total = Number(payment?.total_amount) || 0;
-        const paid = Number(payment?.tot_paid) || 0;
-
-        // const progress = total ? Math.round((paid / total) * 100) : 0;
-        // animateProgress(Number(lastWorkStatus));
-
+        setTargetPendingPayment(Number(paymentDataFromApi?.bal_amt) || 0);
+        setTargetTotalPaid(Number(paymentDataFromApi?.tot_paid) || 0);
+        
+        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
       } catch (err) {
         console.error("Dashboard API Error:", err);
-        setLoading(false);
+        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
       }
     };
 
     fetchDashboard();
   }, []);
 
+  // Set target work progress when data arrives
   useEffect(() => {
     if (lastWorkStatus !== undefined) {
-      animateProgress(Number(lastWorkStatus) || 0);
+      setTargetWorkProgress(Number(lastWorkStatus) || 0);
+      setDataStates(prev => ({ ...prev, workLoaded: true }));
     }
   }, [lastWorkStatus]);
 
+  // Track other data loading states
+  useEffect(() => {
+    if (apiResponse !== undefined) {
+      setDataStates(prev => ({ ...prev, complaintsLoaded: true }));
+    }
+  }, [apiResponse]);
+
+  useEffect(() => {
+    if (work !== undefined) {
+      setDataStates(prev => ({ ...prev, workLoaded: true }));
+    }
+  }, [work]);
+
+  useEffect(() => {
+    if (companyData !== undefined) {
+      setDataStates(prev => ({ ...prev, scholarLoaded: true }));
+    }
+  }, [companyData]);
+
+  // Check when all data is loaded and start animations
+  useEffect(() => {
+    const allDataLoaded = 
+      dataStates.paymentsLoaded &&
+      dataStates.complaintsLoaded &&
+      dataStates.workLoaded &&
+      dataStates.countsLoaded &&
+      dataStates.scholarLoaded;
+
+    if (allDataLoaded && !isDataReady) {
+      // First hide the loader
+      setLoading(false);
+      setIsDataReady(true);
+      
+      // Small delay to ensure DOM is ready, then start animations
+      setTimeout(() => {
+        // Animate counts
+        animateCount(setResolvedComplaints, targetResolvedComplaints, 1200);
+        animateCount(setPendingComplaints, targetPendingComplaints, 1200);
+        animateCount(setTotalPaid, targetTotalPaid, 1200);
+        animateCount(setPendingPayment, targetPendingPayment, 1200);
+        
+        // Animate progress bar
+        animateProgress(targetWorkProgress);
+      }, 100);
+    }
+  }, [dataStates, isDataReady, targetResolvedComplaints, targetPendingComplaints, targetTotalPaid, targetPendingPayment, targetWorkProgress]);
+
   const progressRef = useRef(null);
+  const countRefs = useRef({
+    resolved: null,
+    pending: null,
+    totalPaid: null,
+    pendingPayment: null
+  });
 
   const animateProgress = (end) => {
     if (progressRef.current) {
@@ -120,27 +184,29 @@ const Dashboard = () => {
     }
 
     let progress = 0;
+    const stepTime = 16; // ~60fps
+    const duration = 1000; // 1 second for progress bar
+    const increment = end / (duration / stepTime);
 
     progressRef.current = setInterval(() => {
-      progress += 1;
-
+      progress += increment;
       if (progress >= end) {
         setWorkProgress(end);
         clearInterval(progressRef.current);
+        progressRef.current = null;
       } else {
-        setWorkProgress(progress);
+        setWorkProgress(Math.floor(progress));
       }
-    }, 10);
+    }, stepTime);
   };
 
-  const animateCount = (setValue, end, duration = 1000) => {
+  const animateCount = (setValue, end, duration = 1200) => {
     let start = 0;
     const stepTime = 16;
     const increment = end / (duration / stepTime);
 
     const timer = setInterval(() => {
       start += increment;
-
       if (start >= end) {
         setValue(end);
         clearInterval(timer);
@@ -148,222 +214,194 @@ const Dashboard = () => {
         setValue(Math.floor(start));
       }
     }, stepTime);
+    
+    return timer;
   };
-  // Stats Cards Data
+
+
   const statsCards = [
     {
       icon: CheckCircle,
       label: 'Total Paid',
       value: `₹${totalPaid.toLocaleString()}`,
       color: '#10b981',
-      bgColor: 'rgba(16, 185, 129, 0.1)'
+      bgColor: 'rgba(16, 185, 129, 0.1)',
+      path: '/payment-history'
     },
     {
       icon: IndianRupee,
       label: 'Pending Payment',
-      value: pendingPayment === 0
-        ? 'No pending payment'
-        : `₹${pendingPayment.toLocaleString()}`,
-
+      value: pendingPayment === 0 ? 'No pending payment' : `₹${pendingPayment}`,
       color: '#f59e0b',
       bgColor: 'rgba(245, 158, 11, 0.1)',
-      isZero: pendingPayment === 0
+      isZero: pendingPayment === 0,
+      path: '/payment-history'
     },
     {
       icon: ThumbsUp,
       label: 'Resolved Complaints',
       value: resolvedComplaints,
-      // value: 10,
-
       color: '#8b5cf6',
-      bgColor: 'rgba(139, 92, 246, 0.1)'
+      bgColor: 'rgba(139, 92, 246, 0.1)',
+      path: '/complain-register',
+      status: "resolved"
     },
     {
       icon: AlertCircle,
       label: 'Pending Complaints',
-      // value: 10,
-      value: pendingComplaints === 0
-        ? 'No pending complaints'
-        : `₹${pendingComplaints.toLocaleString()}`,
-
+      value: pendingComplaints === 0 ? 'No pending complaints' : pendingComplaints,
       color: '#ef4444',
       bgColor: 'rgba(239, 68, 68, 0.1)',
-      isZero: pendingComplaints === 0
-
+      isZero: pendingComplaints === 0,
+      path: '/complain-register',
+      status: "pending"
     },
   ];
 
-  // Chart Data
   const weeklyData = [32000, 45000, 28000, 52000, 48000, 61000, 55000];
   const monthlyData = [125000, 148000, 162000, 189000, 205000, 228000];
   const labels = weeklyData.map((_, i) => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]);
 
-  const maxValue = Math.max(...(selectedPeriod === 'weekly' ? weeklyData : monthlyData));
-  const chartData = selectedPeriod === 'weekly' ? weeklyData : monthlyData;
-  const chartLabels = selectedPeriod === 'weekly' ? labels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-
-  // Recent Activities
   const recentActivities = [
-    // Payment (only if exists)
-    ...(payment
-      ? [{
-        id: 1,
-        activity: `Payment Paid for ${payment?.purpose?.pay_purpose || ''}`,
-        date: new Date(payment?.pay_dt_tm).toLocaleString("en-GB", {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          // hour: '2-digit',
-          // minute: '2-digit',
-          // hour12: true
-        }),
-        status: payment?.pay_status,
-        amount: payment?.pay_received || 0
-      }]
-      : []),
-
-    // Complaint (ONLY if exists)
-    ...(complaint?.complaint
-      ? [{
-        id: 2,
-        activity: `Complaint ${complaint?.resolve_status === "resolved" && complaint?.reply_content
-            ? 'Resolved'
-            : complaint?.resolve_status === null && !complaint?.reply_content
-              ? 'Pending'
-              : 'In-Progress'
-          } - Last Submission`,
-        date: new Date(complaint?.complt_reg_dt).toLocaleString("en-GB", {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          // hour: '2-digit',
-          // minute: '2-digit',
-          // hour12: true
-        }),
-        status:
-          complaint?.resolve_status === "resolved" && complaint?.reply_content
-            ? 'Resolved'
-            : complaint?.resolve_status === null && complaint?.reply_content
-              ? 'In Progress'
-              : 'Pending',
-        complaint: complaint?.complaint
-      }]
-      : [])
+    ...(payment ? [{
+      id: 1,
+      activity: `Payment Paid for ${payment?.purpose?.pay_purpose || ''}`,
+      date: new Date(payment?.pay_dt_tm).toLocaleString("en-GB", {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      status: payment?.pay_status,
+      amount: payment?.pay_received || 0
+    }] : []),
+    ...(complaint?.complaint ? [{
+      id: 2,
+      activity: `Complaint ${complaint?.resolve_status === "resolved" && complaint?.reply_content
+        ? 'Resolved'
+        : complaint?.resolve_status === null && !complaint?.reply_content
+          ? 'Pending'
+          : 'In-Progress'
+        } - Last Submission`,
+      date: new Date(complaint?.complt_reg_dt).toLocaleString("en-GB", {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      status: complaint?.resolve_status === "resolved" && complaint?.reply_content
+        ? 'Resolved'
+        : complaint?.resolve_status === null && complaint?.reply_content
+          ? 'In Progress'
+          : 'Pending',
+      complaint: complaint?.complaint
+    }] : [])
   ];
-
-  // Upcoming Deadlines
-  // const deadlines = [
-  //   { task: 'Submit Phase 2 Report', date: 'Dec 15, 2024', daysLeft: 5, priority: 'high' },
-  //   { task: 'Final Payment Due', date: 'Dec 20, 2024', daysLeft: 10, priority: 'medium' },
-  //   { task: 'Project Completion', date: 'Dec 30, 2024', daysLeft: 20, priority: 'low' },
-  // ];
 
   const getDaysLeft = (deadline) => {
     if (!deadline) return 0;
-
     const today = new Date();
     const endDate = new Date(deadline);
-
-    // remove time part
     today.setHours(0, 0, 0, 0);
     endDate.setHours(0, 0, 0, 0);
-
     const diffTime = endDate - today;
-
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
   const daysLeft = getDaysLeft(workDetails?.scholar?.work_dl_on);
+  
   const getPriorityColor = (daysLeft) => {
-    if (daysLeft < 0) return '#ef4444';      // overdue → red
-    if (daysLeft <= 3) return '#f59e0b';     // near → orange
-    return '#10b981';                        // safe → green
+    if (daysLeft < 0) return '#ef4444';
+    if (daysLeft <= 3) return '#f59e0b';
+    return '#10b981';
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="dashboard-premium">
-  //       <div className="dashboard-loading">
-  //         <div className="loading-spinner"></div>
-  //         <p>Loading dashboard...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const getShortDescription = (description) => {
+    if (!description) return '';
+    if (description.length <= 30) return description;
+    const trimmed = description.substring(0, 55);
+    if (!trimmed.includes(' ')) {
+      return trimmed + '...';
+    }
+    return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+  };
 
+  const statusClass = complaint?.status?.toLowerCase().replace(/\s+/g, '-');
+  const getStatusClass = (status) => status?.toLowerCase().replace(/\s+/g, '-');
 
-const getShortDescription = (description) => {
-  if (!description) return '';
-
-  if (description.length <= 30) return description;
-
-  const trimmed = description.substring(0, 30);
-
-  //  If no space (single word), just cut directly
-  if (!trimmed.includes(' ')) {
-    return trimmed + '...';
+  // Show inline loader while data is being fetched (not full page)
+  if (loading) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader 
+          type="scholar" 
+          size="large" 
+          text="Loading dashboard data...."
+        />
+      </div>
+    );
   }
-
-  //  Otherwise cut at last full word
-  return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
-};
 
   return (
     <div className="dashboard-premium">
       <div className="dashboard-limit">
-        {/* Header Section */}
         <div className='sticky-top-header'></div>
         <div className="dashboard-premium-header">
           <div className="header-left">
-            <h1>Welcome, {scholar?.user_name || 'Scholar'}!</h1>
-            <p>{company?.company_name || "Sea Sense Interdisciplinary Research and IT Solution (OPC) Pvt.Ltd."}</p>
+            <h1>Welcome, {companyData?.user_name || 'Scholar'}!</h1>
+            <p>{companyData?.company?.company_name || "Sea Sense Interdisciplinary Research and IT Solution (OPC) Pvt.Ltd."}</p>
           </div>
-          {/* <div className="header-right">
-          <button className="header-btn">
-            <Download size={18} />
-            Export Report
-          </button>
-          <button className="header-btn icon-only">
-            <RefreshCw size={18} />
-          </button>
-        </div> */}
         </div>
 
-
-
-        {/* Charts Section */}
         <div className="charts-premium-grid">
-
           <div className="stats-premium-grid">
-            {statsCards.map((stat, index) => (
-              <div
-                key={index}
-                className={`stat-premium-card ${stat.isZero ? "center-content" : ""}`}
-              >
-                <div className="stat-premium-header">
-
-                  {!stat.isZero && (
-                    <div
-                      className="stat-premium-icon"
-                      style={{ background: stat.bgColor, color: stat.color }}
-                    >
-                      <stat.icon size={22} />
-                    </div>
-                  )}
-
-                  <div>
-                    <div className="stat-premium-value" style={{fontSize: stat.isZero ? "14px" : '', textAlign: stat.isZero ? "center" : ''}}>{stat.value}</div>
-
+            {statsCards.map((stat, index) => {
+              const CardContent = (
+                <div
+                  className={`stat-premium-card ${stat.isZero ? "center-content" : ""} ${stat.isZero ? "disabled-card" : ""}`}
+                >
+                  <div className="stat-premium-header">
                     {!stat.isZero && (
-                      <div className="dashboard-stat-premium-label">{stat.label}</div>
+                      <div
+                        className="stat-premium-icon"
+                        style={{ background: stat.bgColor, color: stat.color }}
+                      >
+                        <stat.icon size={22} />
+                      </div>
                     )}
+                    <div>
+                      <div
+                        className="stat-premium-value"
+                        style={{
+                          fontSize: stat.isZero ? "14px" : "",
+                          textAlign: stat.isZero ? "center" : ""
+                        }}
+                      >
+                        {stat.value}
+                      </div>
+                      {!stat.isZero && (
+                        <div className="dashboard-stat-premium-label">
+                          {stat.label}
+                        </div>
+                      )}
+                    </div>
                   </div>
-
                 </div>
-              </div>
-            ))}
+              );
+
+              return stat.isZero ? (
+                <div key={index}>{CardContent}</div>
+              ) : (
+                <Link
+                  key={index}
+                  to={stat.path}
+                  state={{ status: stat.status }}
+                  style={{ textDecoration: "none" }}
+                >
+                  {CardContent}
+                </Link>
+              );
+            })}
           </div>
-          {/* Progress Circle */}
+          
           <div className="chart-premium-card">
             <div className="chart-header">
               <div>
@@ -375,14 +413,7 @@ const getShortDescription = (description) => {
             <div className="circle-progress-container">
               <div className="circle-progress">
                 <svg viewBox="0 0 120 120" className="progress-ring">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="54"
-                    fill="none"
-                    stroke="var(--border-color)"
-                    strokeWidth="8"
-                  />
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-color)" strokeWidth="8" />
                   <circle
                     cx="60"
                     cy="60"
@@ -399,7 +430,13 @@ const getShortDescription = (description) => {
                 </svg>
                 <div className="circle-progress-text">
                   <span className="percentage">{workProgress}%</span>
-                  <span className="label">Complete</span>
+                  <span className="label">
+                    {lastWorkStatusDate ? new Date(lastWorkStatusDate).toLocaleDateString("en-GB", {
+                      day: '2-digit',
+                      month: "short",
+                      year: 'numeric'
+                    }) : ''}
+                  </span>
                 </div>
               </div>
 
@@ -408,36 +445,29 @@ const getShortDescription = (description) => {
                   <span>Date</span>
                   <span>Progress</span>
                 </div>
-
-                {/* Check if data exists and display last 3 items */}
                 {workStatusList && workStatusList.length > 0 ? (
-                  <>
-                    {/* Display only last 3 stats */}
-                    {workStatusList.slice(0, -1).map((item, index) => (
-                      <div key={index} className="stat-row-graph">
-                        <span className="stat-date">
-                          {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
-                        </span>
-                        <div className="stat-bar-container">
-                          <div
-                            className="stat-bar-fill"
-                            style={{
-                              width: `${item.status}%`,
-                              backgroundColor: item.status >= 70 ? '#10b981' : item.status >= 40 ? '#f59e0b' : '#ef4444'
-                            }}
-                          >
-                            <span className="stat-bar-label">{item.status}%</span>
-                          </div>
+                  workStatusList.slice(1, 4).map((item, index) => (
+                    <div key={index} className="stat-row-graph">
+                      <span className="stat-date">
+                        {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: "numeric" })}
+                      </span>
+                      <div className="stat-bar-container">
+                        <div
+                          className="stat-bar-fill"
+                          style={{
+                            width: `${item.status}%`,
+                            backgroundColor: item.status >= 70 ? '#10b981' : item.status >= 40 ? '#f59e0b' : '#ef4444'
+                          }}
+                        >
+                          <span className="stat-bar-label">{item.status}%</span>
                         </div>
+                        <span>{item.note}</span>
                       </div>
-                    ))}
-                  </>
-                ) : (
-                  /* Empty State - No Data Available */
-                  <div className="empty-progress-stats">
-                    <div className="empty-icon">
-                      <TrendingUp size={32} />
                     </div>
+                  ))
+                ) : (
+                  <div className="empty-progress-stats">
+                    <div className="empty-icon"><TrendingUp size={32} /></div>
                     <p className="empty-title">Work progress data not available</p>
                     <p className="empty-description">Work status updates will appear here once available</p>
                   </div>
@@ -451,117 +481,84 @@ const getShortDescription = (description) => {
           <div className="activity-premium-card">
             <div className="card-header">
               <h3>Recent Activities</h3>
-              {/* <button className="view-all-btn">View All</button> */}
             </div>
             <div className="activity-timeline">
               {recentActivities.map((activity, index) => (
                 <div key={activity.id} className="timeline-item">
-
-                  <div className={`timeline-dot ${activity.status}`}></div>
-
-                  {index !== recentActivities.length - 1 && (
-                    <div className="timeline-line"></div>
-                  )}
-
+                  <div className={`timeline-dot ${getStatusClass(activity.status)}`}></div>
+                  {index !== recentActivities.length - 1 && <div className="timeline-line"></div>}
                   <div className="timeline-content">
                     <p className="activity-title">{activity.activity}</p>
-
                     <div className="activity-footer">
-                      {activity.amount && (
-                        <span className="activity-amount">₹{activity.amount}</span>
-                      )}
-
+                      {activity.amount && <span className="activity-amount">₹{activity.amount}</span>}
                       {activity.complaint && (
-                        <span className="activity-complaint" title={activity.complaint}>{getShortDescription(activity.complaint)}</span>
+                        <span className={`activity-complaint-${statusClass}`} title={activity.complaint}>
+                          {getShortDescription(activity.complaint)}
+                        </span>
                       )}
-
                       <span className="activity-date">{activity.date || ''}</span>
                     </div>
                   </div>
-
                 </div>
               ))}
+              {recentActivities.length === 0 && (
+                <div className="no-activities">
+                  <p>No recent activities</p>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="deadlines-premium-card">
             <div className="card-header">
-              <h3>{(workDetails?.scholar?.work_dl_on) ?  " Upcoming Deadlines " : "Work Description"}</h3>
-              {/* <Calendar size={18} className="header-icon" /> */}
+              <h3>{workDetails?.scholar?.work_dl_on ? "Upcoming Deadlines" : "Work Description"}</h3>
             </div>
             <div className="deadlines-list">
-              {/* {deadlines.map((deadline, index) => ( */}
               <div className="deadline-item">
-                <div
-                  className="deadline-priority"
-                  style={{ background: getPriorityColor(daysLeft) }}
-                ></div>
+                <div className="deadline-priority" style={{ background: getPriorityColor(daysLeft) }}></div>
                 <div className="deadline-info">
-                  <div className="deadline-task">{scholar?.work_description}</div>
+                  <div className="deadline-task">{scholar?.work_description || "No work description available"}</div>
                   {workDetails?.scholar?.work_dl_on && (
-                  <div className="deadline-date">{new Date(workDetails?.scholar?.work_dl_on).toLocaleDateString("en-GB", {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}</div>
-                )}
+                    <div className="deadline-date">
+                      {new Date(workDetails?.scholar?.work_dl_on).toLocaleDateString("en-GB", {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                      })}
+                    </div>
+                  )}
                 </div>
                 {workDetails?.scholar?.work_dl_on && (
-                <div
-                  className="deadline-days"
-                  style={{ color: getPriorityColor(workDetails?.priority) }}
-                >
-                  {daysLeft > 0
-                    ? `${daysLeft} days left`
-                    : daysLeft === 0
-                      ? "Due today"
-                      : `${Math.abs(daysLeft)} days overdue`}
-                </div>
+                  <div className="deadline-days" style={{ color: getPriorityColor(workDetails?.priority || daysLeft) }}>
+                    {daysLeft > 0
+                      ? `${daysLeft} ${daysLeft > 1 ? "days" : "day"} left`
+                      : daysLeft === 0
+                        ? "Due today"
+                        : `${Math.abs(daysLeft)} ${Math.abs(daysLeft) > 1 ? "days" : "day"} overdue`}
+                  </div>
                 )}
               </div>
-              {/* ))} */}
+            </div>
+            <div className="card-header">
+              <h3>Payment Status</h3>
             </div>
             <div className="payment-summary-mini">
               <div className="summary-row">
                 <span>Total Amount</span>
-                <strong>₹{(totalPaid + pendingPayment).toLocaleString()}</strong>
+                <strong>₹{((totalPaid || 0) + (pendingPayment || 0)).toLocaleString()}</strong>
               </div>
               <div className="summary-row">
                 <span>Payment Progress</span>
-                <strong>{Math.round((totalPaid / (totalPaid + pendingPayment)) * 100)}%</strong>
+                <strong>{Math.round(((totalPaid || 0) / ((totalPaid || 0) + (pendingPayment || 0))) * 100) || 0}%</strong>
               </div>
               <div className="payment-bar-mini">
                 <div
                   className="payment-fill-mini"
-                  style={{ width: `${(totalPaid / (totalPaid + pendingPayment)) * 100}%` }}
+                  style={{ width: `${((totalPaid || 0) / ((totalPaid || 0) + (pendingPayment || 0))) * 100 || 0}%` }}
                 ></div>
               </div>
             </div>
           </div>
-
-          {/* <div className="actions-premium-card">
-          <div className="card-header">
-            <h3>Quick Actions</h3>
-          </div>
-          <div className="actions-premium-grid">
-            <button className="action-premium-btn">
-              <BookOpen size={20} />
-              <span>Start Learning</span>
-            </button>
-            <button className="action-premium-btn">
-              <Calendar size={20} />
-              <span>Schedule Meeting</span>
-            </button>
-            <button className="action-premium-btn">
-              <TrendingUp size={20} />
-              <span>View Progress</span>
-            </button>
-            <button className="action-premium-btn">
-              <Users size={20} />
-              <span>Study Group</span>
-            </button>
-          </div>
-        </div> */}
         </div>
       </div>
     </div>

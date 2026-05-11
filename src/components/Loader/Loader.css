@@ -1,26 +1,281 @@
-.loader-container {
+/* Loader.css - Simplified with 2 spinners and icon animations */
+
+/* ==================== CSS VARIABLES FOR THEME SUPPORT ==================== */
+:root {
+  /* Light mode variables (default) */
+  --loader-bg-light: rgba(255, 255, 255, 0.95);
+  --loader-text-light: #1f2937;
+  --loader-spinner-light-1: #6366f1;
+  --loader-spinner-light-2: #8b5cf6;
+  --loader-icon-light: #4f46e5;
+}
+
+/* Dark mode variables */
+.dark {
+  --loader-bg-dark: rgba(17, 24, 39, 0.95);
+  --loader-text-dark: #f3f4f6;
+  --loader-spinner-dark-1: #818cf8;
+  --loader-spinner-dark-2: #a78bfa;
+  --loader-icon-dark: #6366f1;
+}
+
+/* ==================== SCHOLAR LOADER STYLES ==================== */
+
+.loader-scholar {
+  position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 400px;
+  align-items: center;
 }
 
-.loader {
-  text-align: center;
+.scholar-spinner-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
-.loader-spinner {
+/* Spinner Rings - Only 2 spinners */
+.scholar-spinner-ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+  box-sizing: border-box;
+}
+
+/* Outer Ring - spins clockwise */
+.spinner-ring-outer {
+  width: 100%;
+  height: 100%;
+  border-width: 3px;
+  animation: spin-clockwise 1s linear infinite;
+}
+
+/* Inner Ring - spins counter-clockwise for visual interest */
+.spinner-ring-inner {
+  width: 55%;
+  height: 55%;
+  border-width: 3px;
+  animation: spin-counter-clockwise 0.8s linear infinite;
+}
+
+/* Light mode ring colors */
+.loader-scholar .spinner-ring-outer {
+  border-color: var(--loader-spinner-light-1) transparent transparent var(--loader-spinner-light-2);
+}
+
+.loader-scholar .spinner-ring-inner {
+  border-color: var(--loader-spinner-light-2) transparent var(--loader-spinner-light-1) transparent;
+}
+
+/* Dark mode ring colors */
+.dark .loader-scholar .spinner-ring-outer {
+  border-color: var(--loader-spinner-dark-1) transparent transparent var(--loader-spinner-dark-2);
+}
+
+.dark .loader-scholar .spinner-ring-inner {
+  border-color: var(--loader-spinner-dark-2) transparent var(--loader-spinner-dark-1) transparent;
+}
+
+/* Scholar Icon Center - with bounce and scale animations */
+.scholar-icon-center {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border-radius: 50%;
+  animation: icon-bounce 1.2s ease-in-out infinite, icon-pulse 2s ease-in-out infinite;
+}
+
+/* Light mode icon */
+.loader-scholar .scholar-icon-center {
+  color: var(--loader-icon-light);
+}
+
+/* Dark mode icon */
+.dark .loader-scholar .scholar-icon-center {
+  color: var(--loader-icon-dark);
+}
+
+.scholar-icon-svg {
+  width: 60%;
+  height: 60%;
+  margin: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+}
+
+/* Size Variants for Scholar Loader */
+.loader-scholar.loader-small {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-scholar.loader-small .scholar-icon-center {
+  width: 28px;
+  height: 28px;
+}
+
+.loader-scholar.loader-small .scholar-icon-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.loader-scholar.loader-medium {
+  width: 70px;
+  height: 70px;
+}
+
+.loader-scholar.loader-medium .scholar-icon-center {
   width: 48px;
   height: 48px;
-  border: 3px solid var(--border-color);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 16px;
 }
 
-@keyframes spin {
-  to {
+.loader-scholar.loader-medium .scholar-icon-svg {
+  width: 32px;
+  height: 32px;
+}
+
+.loader-scholar.loader-large {
+  width: 100px;
+  height: 100px;
+}
+
+.loader-scholar.loader-large .scholar-icon-center {
+  width: 70px;
+  height: 70px;
+}
+
+.loader-scholar.loader-large .scholar-icon-svg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+/* Clockwise spin animation */
+@keyframes spin-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
+}
+
+/* Counter-clockwise spin animation */
+@keyframes spin-counter-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Icon bounce animation */
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.05);
+  }
+}
+
+/* Icon pulse animation */
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
+  }
+}
+
+/* Loading Text Styling - Theme Aware */
+.loader-container .loader-text {
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  /* text-transform: lowercase; */
+  letter-spacing: 2px;
+  animation: text-pulse 1.5s ease-in-out infinite, text-shimmer 2s linear infinite;
+  background: linear-gradient(135deg, var(--loader-spinner-light-1), var(--loader-spinner-light-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+}
+
+/* Dark mode text gradient */
+.dark .loader-container .loader-text {
+  background: linear-gradient(135deg, var(--loader-spinner-dark-1), var(--loader-spinner-dark-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+}
+
+
+
+/* Fullscreen Loader */
+.loader-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loader-fullscreen {
+  background: var(--loader-bg-light);
+}
+
+.dark .loader-fullscreen {
+  background: var(--loader-bg-dark);
+}
+
+/* Overlay Loader */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+}
+
+/* Container loader */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Dashboard-specific inline loader wrapper */
+.dashboard-loader-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+  width: 100%;
+  background: transparent;
 }

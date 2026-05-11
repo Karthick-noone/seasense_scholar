@@ -175,13 +175,13 @@ const { mutate: logout } = useLogout();
                 <img src={scholarImage} alt="Profile" className='header-prof-img1' />
               ) : (
                 <div className="user-glass-avatar">
-                  <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
+                  <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
                 </div>
               )}
             </div>
             <div className="user-glass-info">
-              <span className="user-glass-name">{scholar?.user_name || 'Scholar'}</span>
-              <span className="user-glass-role">{scholar?.user_id}</span>
+              <span className="user-glass-name">{scholarData?.user_name || 'Scholar'}</span>
+              <span className="user-glass-role">{scholar?.user_id }</span>
             </div>
             <ChevronDown size={14} className={`chevron-glass-icon ${showUserMenu ? 'rotated' : ''}`} />
           </button>
@@ -195,14 +195,14 @@ const { mutate: logout } = useLogout();
                     <img src={scholarImage} alt="Profile" className='header-prof-img2' />
                   ) : (
                     <div className="user-glass-avatar">
-                      <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
+                      <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
                     </div>
                   )}
                   {/* <span>{scholar.user_name ? scholar.user_name.charAt(0) : 'S'}</span> */}
                 </div>
                 <div className="user-glass-profile-info">
-                  <h4>{scholar?.user_name || 'Scholar User'}</h4>
-                  <p>{scholar?.email || 'scholar@example.com'}</p>
+                  <h4>{scholarData?.user_name || 'Scholar User'}</h4>
+                  <p>{scholarData?.email || 'scholar@example.com'}</p>
                 </div>
               </div>
 

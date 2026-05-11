@@ -104,14 +104,13 @@
 }
 
 .deactivated-modal-body {
-  padding: 24px;
+  padding: 20px;
   text-align: center;
 }
 
 .deactivated-modal-body p {
   font-size: 15px;
   color: var(--text-color);
-  margin: 0 0 12px 0;
   line-height: 1.5;
 }
 
