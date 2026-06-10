@@ -41,12 +41,14 @@ import Loader from './../../components/Loader/Loader';
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [hoverImage, setHoverImage] = useState(false);
   const [hoverCamera, setHoverCamera] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [isDataReady, setIsDataReady] = useState(false);
-  
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleImageView = () => {
     if (scholarImage) {
       setShowImagePreview(true);
@@ -54,7 +56,7 @@ const Profile = () => {
       fileInputRef.current.click();
     }
   };
-  
+
   const fileInputRef = useRef(null);
 
   const scholar = secureStorage.getScholar();
@@ -64,6 +66,8 @@ const Profile = () => {
   const scholarImage = scholarData?.scholar_profile
     ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
     : null;
+
+  console.log("Scholar Image", scholarImage)
 
   const [workProgress, setWorkProgress] = useState(0);
   const lastWorkStatus = lastStatus?.status;
@@ -174,19 +178,23 @@ const Profile = () => {
 
     const formData = new FormData();
     formData.append("scholar_profile", file);
-
+    setIsUploading(true)
     uploadImage(formData, {
       onSuccess: () => {
         e.target.value = "";
         showToast('Profile image uploaded successfully!', 'success');
+        setIsUploading(false);
+
       },
       onError: (error) => {
         showToast('Failed to upload image. Please try again.', 'error');
         e.target.value = "";
+        setIsUploading(false);
+
       }
     });
   };
-  
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDeleteImage = () => {
@@ -196,21 +204,26 @@ const Profile = () => {
   const confirmDelete = () => {
     const formData = new FormData();
     formData.append("remove", 1);
-
+    setIsDeleting(true)
     uploadImage(formData, {
       onSuccess: () => {
         showToast('Profile image deleted successfully!', 'success');
         setShowDeleteConfirm(false);
+        setIsDeleting(false)
+
       },
       onError: (error) => {
         showToast('Failed to delete image. Please try again.', 'error');
         setShowDeleteConfirm(false);
+        setIsDeleting(false)
+
       }
     });
   };
 
   const cancelDelete = () => {
     setShowDeleteConfirm(false);
+    setIsDeleting(false)
   };
 
   const capsLetter = (name) => {
@@ -221,9 +234,9 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="dashboard-loader-wrapper">
-        <Loader 
-          type="scholar" 
-          size="large" 
+        <Loader
+          type="scholar"
+          size="large"
           text="Loading profile data...."
         />
       </div>
@@ -258,7 +271,7 @@ const Profile = () => {
                   <label>Domain</label>
                   <div className="info-value">
                     <Globe size={14} />
-                    <span>{scholarData?.domain?.domain || 'N/A'}</span>
+                    <span>{scholarData?.domain_nm || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
@@ -280,7 +293,7 @@ const Profile = () => {
                   <label>Technical Expert Contact</label>
                   <div className="info-value">
                     <Phone size={14} />
-                    <span>+91 {scholarData?.tech_expert?.staff_contact || 'N/A'}</span>
+                    <span> {scholarData?.tech_expert?.staff_contact || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item">
@@ -294,7 +307,7 @@ const Profile = () => {
                   <label>BDA Contact</label>
                   <div className="info-value">
                     <Phone size={14} />
-                    <span>+91 {scholarData?.bda?.bda_contact || 'N/A'}</span>
+                    <span> {scholarData?.bda?.bda_contact || 'N/A'}</span>
                   </div>
                 </div>
                 <div className="info-premium-item full-width">
@@ -306,38 +319,46 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+            {workProgress > 0 && (
+              <div className="progress-premium-card">
+                <div className="card-premium-header">
+                  <TrendingUp size={20} />
+                  <h3>Project Completion</h3>
+                  <span className="progress-percentage-badge">{workProgress}%</span>
+                </div>
+                <div className="progress-premium-bar">
+                  <div className="progress-premium-fill" style={{ width: `${workProgress}%` }}>
+                    <div className="progress-premium-glow"></div>
+                  </div>
+                </div>
+                <div className="progress-premium-stats">
+                  {lastStatus?.note && (
+                    <div className="progress-stat">
+                      {/* <Notebook size={14} className='progress-icon' /> */}
+                      <span>Notes:</span>
+                      <span>{capsLetter(lastStatus?.note)}</span>
+                    </div>
+                  )}
+                  {lastStatus?.date && (
+                    <div className="progress-stat progress-date">
+                      {lastStatus?.date && !isNaN(new Date(lastStatus.date).getTime()) && (
+                        <>
+                          <Calendar size={14} />
 
-            <div className="progress-premium-card">
-              <div className="card-premium-header">
-                <TrendingUp size={20} />
-                <h3>Project Completion</h3>
-                <span className="progress-percentage-badge">{workProgress}%</span>
-              </div>
-              <div className="progress-premium-bar">
-                <div className="progress-premium-fill" style={{ width: `${workProgress}%` }}>
-                  <div className="progress-premium-glow"></div>
+                          <span>
+                            {new Date(lastStatus.date).toLocaleString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="progress-premium-stats">
-                {lastStatus?.note && (
-                  <div className="progress-stat">
-                    <Notebook size={14} className='progress-icon' />
-                    <span>Notes:</span>
-                    <span>{capsLetter(lastStatus?.note)}</span>
-                  </div>
-                )}
-                {lastStatus?.date && (
-                  <div className="progress-stat progress-date">
-                    <Calendar size={14} />
-                    <span>{new Date(lastStatus?.date).toLocaleString("en-GB", {
-                      day: "2-digit",
-                      month: 'short',
-                      year: 'numeric'
-                    })}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Right Column - Main Content */}
@@ -354,7 +375,7 @@ const Profile = () => {
                   </div>
                 </div>
               )}
-              
+
               <div
                 className="avatar-premium-wrapper"
                 onMouseEnter={() => setHoverImage(true)}
@@ -375,8 +396,12 @@ const Profile = () => {
                   )}
                 </div>
 
-                <div className="avatar-camera-btn" onClick={handleImageClick}>
-                  <Camera size={15} />
+                <div className="avatar-camera-btn" onClick={handleImageClick} disabled={isUploading}>
+                  {isUploading ? (
+                    <span className='btn-loader'></span>
+                  ) : (
+                    <Camera size={15} />
+                  )}
                 </div>
                 <input
                   type="file"
@@ -384,6 +409,7 @@ const Profile = () => {
                   onChange={handleImageChange}
                   accept=".png, .jpg, .jpeg"
                   style={{ display: "none" }}
+                  disabled={isUploading}
                 />
               </div>
 
@@ -407,17 +433,17 @@ const Profile = () => {
                 <div className="contact-premium-item">
                   <Calendar size={16} />
                   <span>
-                    {scholar?.reg_date 
+                    {scholar?.reg_date
                       ? new Date(scholar.reg_date).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric"
-                        }) 
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                      })
                       : 'N/A'} (Registration date)
                   </span>
                 </div>
               </div>
-              
+
               {scholarData?.secondary_emails?.length > 0 && (
                 <>
                   <h3 style={{ marginTop: "15px" }}>Secondary Emails</h3>
@@ -458,11 +484,31 @@ const Profile = () => {
                     <p>Are you sure you want to delete your profile image?</p>
                   </div>
                   <div className="confirmation-modal-footer">
-                    <button className="confirmation-btn cancel" onClick={cancelDelete}>
+                    <button className="confirmation-btn cancel" onClick={cancelDelete}
+                      disabled={isDeleting}
+                    >
                       Cancel
                     </button>
-                    <button className="confirmation-btn delete" onClick={confirmDelete}>
-                      Delete
+                    <button
+                      className="confirmation-btn delete"
+                      onClick={confirmDelete}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px"
+                          }}
+                        >
+                          <span className="btn-loader"></span>
+                          <span>Deleting...</span>
+                        </span>
+                      ) : (
+                        "Delete"
+                      )}
                     </button>
                   </div>
                 </div>

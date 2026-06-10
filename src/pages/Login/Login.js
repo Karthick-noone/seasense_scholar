@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, Eye, EyeOff, LogIn, ShieldCheck, Zap, Headphones } from 'lucide-react';
 import './Login.css';
@@ -14,6 +14,12 @@ const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (secureStorage.getToken()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,7 +105,7 @@ const Login = ({ onLogin }) => {
         <div className="login-card">
           <div className='login-logo-container'>
             <img src={logo} alt="Logo" className="login-logo-image2" />
-</div>
+          </div>
           <div className="login-header">
             <h2>Welcome back</h2>
             <p>Sign in to continue</p>
@@ -157,7 +163,7 @@ const Login = ({ onLogin }) => {
                 </>
               )}
             </button>
-            <Link to={"/forgot-password"} style={{ textDecoration: 'none', textAlign:'right' }}>
+            <Link to={"/forgot-password"} style={{ textDecoration: 'none', textAlign: 'right' }}>
               <span className='forgot-password'>Forgot password?</span>
             </Link>
             {/* <div className="demo-info">

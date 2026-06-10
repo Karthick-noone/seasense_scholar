@@ -1,6 +1,5 @@
 /* Loader.css - Simplified with 2 spinners and icon animations */
 
-/* ==================== CSS VARIABLES FOR THEME SUPPORT ==================== */
 :root {
   /* Light mode variables (default) */
   --loader-bg-light: rgba(255, 255, 255, 0.95);
@@ -19,7 +18,6 @@
   --loader-icon-dark: #6366f1;
 }
 
-/* ==================== SCHOLAR LOADER STYLES ==================== */
 
 .loader-scholar {
   position: relative;
@@ -268,6 +266,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  margin-top: 150px;
 }
 
 /* Dashboard-specific inline loader wrapper */

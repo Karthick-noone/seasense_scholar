@@ -194,7 +194,7 @@ const { mutate: logout } = useLogout();
                   {scholarImage ? (
                     <img src={scholarImage} alt="Profile" className='header-prof-img2' />
                   ) : (
-                    <div className="user-glass-avatar">
+                    <div className="user-glass-avatar1">
                       <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
                     </div>
                   )}

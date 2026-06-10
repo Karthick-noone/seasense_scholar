@@ -428,7 +428,6 @@ transform: translateY(-4px);
   font-size: 11px;
   color: var(--text-muted);
 }
-
 /* Circle Progress */
 .circle-progress-container {
   display: flex;
@@ -445,7 +444,7 @@ transform: translateY(-4px);
 }
 
 .progress-ring-circle {
-  transition: stroke-dashoffset 0.5s ease;
+  transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
 }
 
 .circle-progress-text {
@@ -461,11 +460,25 @@ transform: translateY(-4px);
   font-weight: 700;
   color: var(--primary-color);
   display: block;
+  transition: color 0.3s ease;
+}
+
+/* Green color when completed */
+.circle-progress-text .percentage.completed {
+  color: #10b981;
 }
 
 .circle-progress-text .label {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.completed-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
 }
 
 .progress-stats {
@@ -722,7 +735,7 @@ transform: translateY(-4px);
 .summary-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   font-size: 13px;
   color: var(--text-muted);
 }

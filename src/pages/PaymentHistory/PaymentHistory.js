@@ -752,7 +752,7 @@ const PaymentHistory = () => {
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
-    if (loading) {
+    if (loading || isFetching) {
     return (
       <div className="dashboard-loader-wrapper">
         <Loader 

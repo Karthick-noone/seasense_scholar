@@ -39,7 +39,7 @@ const Dashboard = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [workProgress, setWorkProgress] = useState(0);
   const [isDataReady, setIsDataReady] = useState(false);
-  
+
   // Store actual values for animation targets
   const [targetPendingPayment, setTargetPendingPayment] = useState(0);
   const [targetTotalPaid, setTargetTotalPaid] = useState(0);
@@ -104,7 +104,7 @@ const Dashboard = () => {
 
         setTargetPendingPayment(Number(paymentDataFromApi?.bal_amt) || 0);
         setTargetTotalPaid(Number(paymentDataFromApi?.tot_paid) || 0);
-        
+
         setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
       } catch (err) {
         console.error("Dashboard API Error:", err);
@@ -144,7 +144,7 @@ const Dashboard = () => {
 
   // Check when all data is loaded and start animations
   useEffect(() => {
-    const allDataLoaded = 
+    const allDataLoaded =
       dataStates.paymentsLoaded &&
       dataStates.complaintsLoaded &&
       dataStates.workLoaded &&
@@ -155,7 +155,7 @@ const Dashboard = () => {
       // First hide the loader
       setLoading(false);
       setIsDataReady(true);
-      
+
       // Small delay to ensure DOM is ready, then start animations
       setTimeout(() => {
         // Animate counts
@@ -163,7 +163,7 @@ const Dashboard = () => {
         animateCount(setPendingComplaints, targetPendingComplaints, 1200);
         animateCount(setTotalPaid, targetTotalPaid, 1200);
         animateCount(setPendingPayment, targetPendingPayment, 1200);
-        
+
         // Animate progress bar
         animateProgress(targetWorkProgress);
       }, 100);
@@ -214,7 +214,7 @@ const Dashboard = () => {
         setValue(Math.floor(start));
       }
     }, stepTime);
-    
+
     return timer;
   };
 
@@ -307,7 +307,7 @@ const Dashboard = () => {
   };
 
   const daysLeft = getDaysLeft(workDetails?.scholar?.work_dl_on);
-  
+
   const getPriorityColor = (daysLeft) => {
     if (daysLeft < 0) return '#ef4444';
     if (daysLeft <= 3) return '#f59e0b';
@@ -331,9 +331,9 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-loader-wrapper">
-        <Loader 
-          type="scholar" 
-          size="large" 
+        <Loader
+          type="scholar"
+          size="large"
           text="Loading dashboard data...."
         />
       </div>
@@ -401,7 +401,7 @@ const Dashboard = () => {
               );
             })}
           </div>
-          
+
           <div className="chart-premium-card">
             <div className="chart-header">
               <div>
@@ -410,70 +410,99 @@ const Dashboard = () => {
               </div>
               <div className="progress-badge"><TrendingUp size={20} /></div>
             </div>
-            <div className="circle-progress-container">
-              <div className="circle-progress">
-                <svg viewBox="0 0 120 120" className="progress-ring">
-                  <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-color)" strokeWidth="8" />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="54"
-                    fill="none"
-                    stroke="var(--primary-color)"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    strokeDasharray={`${2 * Math.PI * 54}`}
-                    strokeDashoffset={`${2 * Math.PI * 54 * (1 - workProgress / 100)}`}
-                    transform="rotate(-90 60 60)"
-                    className="progress-ring-circle"
-                  />
-                </svg>
-                <div className="circle-progress-text">
-                  <span className="percentage">{workProgress}%</span>
-                  <span className="label">
-                    {lastWorkStatusDate ? new Date(lastWorkStatusDate).toLocaleDateString("en-GB", {
-                      day: '2-digit',
-                      month: "short",
-                      year: 'numeric'
-                    }) : ''}
-                  </span>
-                </div>
-              </div>
+            {workProgress > 0 ? (
+              <div className="circle-progress-container">
+                <div className="circle-progress">
+                  <svg viewBox="0 0 120 120" className="progress-ring">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="54"
+                      fill="none"
+                      stroke="var(--border-color)"
+                      strokeWidth="8"
+                    />
 
-              <div className="progress-stats">
-                <div className="stats-header">
-                  <span>Date</span>
-                  <span>Progress</span>
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="54"
+                      fill="none"
+                      stroke={workProgress === 100 ? "#10b981" : "var(--primary-color)"}
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 54}`}
+                      strokeDashoffset={`${2 * Math.PI * 54 * (1 - workProgress / 100)}`}
+                      transform="rotate(-90 60 60)"
+                      className="progress-ring-circle"
+                    />
+                  </svg>
+
+                  <div className="circle-progress-text">
+                    <span
+                      className={`percentage ${workProgress === 100 ? "completed" : ""}`}
+                    >
+                      {workProgress}%
+                    </span>
+
+                    <span className="label">
+                      {lastWorkStatusDate &&
+                        !isNaN(new Date(lastWorkStatusDate).getTime())
+                        ? new Date(lastWorkStatusDate).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                        : ""}
+                    </span>
+
+                    <span className="completed-note">
+                      {workProgress === 100 ? "Completed" : ""}
+                    </span>
+                  </div>
                 </div>
-                {workStatusList && workStatusList.length > 0 ? (
-                  workStatusList.slice(1, 4).map((item, index) => (
-                    <div key={index} className="stat-row-graph">
-                      <span className="stat-date">
-                        {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: "numeric" })}
-                      </span>
-                      <div className="stat-bar-container">
-                        <div
-                          className="stat-bar-fill"
-                          style={{
-                            width: `${item.status}%`,
-                            backgroundColor: item.status >= 70 ? '#10b981' : item.status >= 40 ? '#f59e0b' : '#ef4444'
-                          }}
-                        >
-                          <span className="stat-bar-label">{item.status}%</span>
-                        </div>
-                        <span>{item.note}</span>
-                      </div>
+                {workStatusList && workStatusList.length > 1 && (
+                  <div className="progress-stats">
+                    <div className="stats-header">
+                      <span>Date</span>
+                      <span>Progress</span>
                     </div>
-                  ))
-                ) : (
-                  <div className="empty-progress-stats">
-                    <div className="empty-icon"><TrendingUp size={32} /></div>
-                    <p className="empty-title">Work progress data not available</p>
-                    <p className="empty-description">Work status updates will appear here once available</p>
+                    {workStatusList && workStatusList.length > 1 ? (
+                      workStatusList.slice(-4, -1).map((item, index) => (
+                        <div key={index} className="stat-row-graph">
+                          <span className="stat-date">
+                            {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: "numeric" })}
+                          </span>
+                          <div className="stat-bar-container">
+                            <div
+                              className="stat-bar-fill"
+                              style={{
+                                width: `${item.status}%`,
+                                backgroundColor: item.status >= 70 ? '#10b981' : item.status >= 40 ? '#f59e0b' : '#ef4444'
+                              }}
+                            >
+                              <span className="stat-bar-label">{item.status}%</span>
+                            </div>
+                            <span>{item.note}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="empty-progress-stats">
+                        <div className="empty-icon"><TrendingUp size={32} /></div>
+                        <p className="empty-title">Work progress data not available</p>
+                        <p className="empty-description">Work status updates will appear here once available</p>
+                      </div>
+                    )}
                   </div>
                 )}
+              </div>) : (
+              <div className="empty-progress-stats">
+                <div className="empty-icon"><TrendingUp size={32} /></div>
+                <p className="empty-title">Work progress data not available</p>
+                <p className="empty-description">Work status updates will appear here once available</p>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -510,7 +539,7 @@ const Dashboard = () => {
           </div>
 
           <div className="deadlines-premium-card">
-            <div className="card-header">
+            {/* <div className="card-header">
               <h3>{workDetails?.scholar?.work_dl_on ? "Upcoming Deadlines" : "Work Description"}</h3>
             </div>
             <div className="deadlines-list">
@@ -538,7 +567,7 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
             <div className="card-header">
               <h3>Payment Status</h3>
             </div>
@@ -546,6 +575,10 @@ const Dashboard = () => {
               <div className="summary-row">
                 <span>Total Amount</span>
                 <strong>₹{((totalPaid || 0) + (pendingPayment || 0)).toLocaleString()}</strong>
+              </div>
+              <div className="summary-row">
+                <span>Pending Amount</span>
+                <strong>₹{((pendingPayment || 0)).toLocaleString()}</strong>
               </div>
               <div className="summary-row">
                 <span>Payment Progress</span>
