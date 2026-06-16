@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   User,
@@ -73,22 +73,25 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
       <div className={sidebarClasses}>
         {/* Header with Logo */}
         <div className="sidebar-premium-header">
-          <div className="logo-premium-wrapper">
-            <div className="logo-premium-icon">
-              <GraduationCap size={26} />
-            </div>
-            {/* {(!collapsed || isMobile) && (
+          <Link to="/dashboard" className="logo-link">
+
+            <div className="logo-premium-wrapper">
+              <div className="logo-premium-icon">
+                <GraduationCap size={26} />
+              </div>
+              {/* {(!collapsed || isMobile) && (
               <div className="logo-premium-text">
                 <span className="logo-premium-title">SeaSense</span>
                 <span className="logo-premium-subtitle">Scholar Portal</span>
               </div>
             )} */}
-            {(!collapsed || isMobile) && <img src={companyLogo} alt="Logo"
+              {(!collapsed || isMobile) && <img src={companyLogo} alt="Logo"
 
-              className={`logo-image ${theme === "dark" ? "logo-white" : ""}`}
-            />}
+                className={`logo-image ${theme === "dark" ? "logo-white" : ""}`}
+              />}
+            </div>
+          </Link>
 
-          </div>
 
           {/* {!isMobile && (
             <button className="collapse-premium-btn" onClick={onToggle}>

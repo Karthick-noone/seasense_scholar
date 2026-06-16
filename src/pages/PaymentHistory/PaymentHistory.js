@@ -712,40 +712,45 @@ const PaymentHistory = () => {
     setCurrentPage(1); // Reset to first page
   };
 
-  // Get page numbers to display
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
+  // Get page numbers to display - Maximum 4 pages
+const getPageNumbers = () => {
+  const pageNumbers = [];
+  const maxPagesToShow = 4; // Changed to 4
 
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      let startPage = Math.max(1, currentPage - 2);
-      let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-      if (endPage - startPage + 1 < maxPagesToShow) {
-        startPage = Math.max(1, endPage - maxPagesToShow + 1);
-      }
-
-      if (startPage > 1) {
-        pageNumbers.push(1);
-        if (startPage > 2) pageNumbers.push('...');
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i);
-      }
-
-      if (endPage < totalPages) {
-        if (endPage < totalPages - 1) pageNumbers.push('...');
-        pageNumbers.push(totalPages);
-      }
+  if (totalPages <= maxPagesToShow) {
+    // If 4 pages or less, show all pages
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
     }
+  } else {
+    // For more than 4 pages
+    if (currentPage <= 2) {
+      // Current page is 1 or 2
+      // Show: 1, 2, 3, ..., last
+      pageNumbers.push(1, 2, 3);
+      pageNumbers.push('...');
+      pageNumbers.push(totalPages);
+    } 
+    else if (currentPage >= totalPages - 1) {
+      // Current page is last or second last
+      // Show: 1, ..., last-2, last-1, last
+      pageNumbers.push(1);
+      pageNumbers.push('...');
+      pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
+    }
+    else {
+      // Current page is in the middle
+      // Show: 1, ..., current, ..., last
+      pageNumbers.push(1);
+      pageNumbers.push('...');
+      pageNumbers.push(currentPage);
+      pageNumbers.push('...');
+      pageNumbers.push(totalPages);
+    }
+  }
 
-    return pageNumbers;
-  };
+  return pageNumbers;
+};
 
   const capsLetter = (name) => {
     if (!name) return;
@@ -856,82 +861,88 @@ const PaymentHistory = () => {
 
         </div>
 
-        <div className="payments-table-container">
-          <table className="payments-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Payment Purpose</th>
-                <th>Paid Amount</th>
-                <th>Bank</th>
-                <th>Status</th>
-                <th>View</th>
-                <th>Receipt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading || isFetching ? (
-                <tr className="complaint-loading-row">
-                  <td colSpan="7" className="complaint-loading-cell">
-                    <div className="complaint-loading-state">
-                      <div className="loading-spinner"></div>
-                      <p>Loading payments...</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (currentRows.length > 0 ? (
-                currentRows.map(payment => (
-                  <tr key={payment.id}>
-                    <td>
-                      {new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-                      })}
-                    </td>
-                    <td>{payment.purpose.pay_purpose}</td>
-                    <td className="amount-cell">₹{payment.pay_received.toLocaleString()}</td>
-                    <td>{payment.bank.bank_nm}</td>
-                    <td>
-                      <span className={`status-badge ${payment.pay_status}`}>
-                        {capsLetter(payment.pay_status)}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="action-btn view-btn"
-                          onClick={() => setSelectedPayment(payment)}
-                        >
-                          <Eye size={16} />
-                        </button>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          className="action-btn view-btn"
-                          onClick={() => setDownloadReceipt(payment)}
-                        >
-                          <FileText size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="empty-table-cell">
-                    <div className="empty-table-state">
-                      {/* <span>📭</span> */}
-                      <p>No payment records found</p>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <div className="payments-table-wrapper">
+  <div className="payments-table-responsive">
+    <table className="payments-data-table">
+      <thead className="payments-table-header">
+        <tr>
+          <th className="payments-table-head">Date</th>
+          <th className="payments-table-head">Payment Purpose</th>
+          <th className="payments-table-head">Paid Amount</th>
+          <th className="payments-table-head">Bank</th>
+          <th className="payments-table-head">Status</th>
+          <th className="payments-table-head">View</th>
+          <th className="payments-table-head">Receipt</th>
+        </tr>
+      </thead>
+      <tbody className="payments-table-body">
+        {isLoading || isFetching ? (
+          <tr className="payments-loading-row">
+            <td colSpan="7" className="payments-loading-cell">
+              <div className="payments-loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading payments...</p>
+              </div>
+            </td>
+          </tr>
+        ) : (currentRows.length > 0 ? (
+          currentRows.map(payment => (
+            <tr key={payment.id} className="payments-table-row">
+              <td className="payments-table-cell" data-label="Date">
+                {new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric"
+                })}
+              </td>
+              <td className="payments-table-cell" data-label="Payment Purpose">
+                {payment.purpose.pay_purpose}
+              </td>
+              <td className="payments-table-cell amount-cell" data-label="Paid Amount">
+                ₹{payment.pay_received.toLocaleString()}
+              </td>
+              <td className="payments-table-cell" data-label="Bank">
+                {payment.bank.bank_nm}
+              </td>
+              <td className="payments-table-cell" data-label="Status">
+                <span className={`status-badge ${payment.pay_status}`}>
+                  {capsLetter(payment.pay_status)}
+                </span>
+              </td>
+              <td className="payments-table-cell" data-label="View">
+                <div className="payments-action-buttons">
+                  <button
+                    className="payments-action-btn payments-view-btn"
+                    onClick={() => setSelectedPayment(payment)}
+                  >
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </td>
+              <td className="payments-table-cell" data-label="Receipt">
+                <div className="payments-action-buttons">
+                  <button
+                    className="payments-action-btn payments-receipt-btn"
+                    onClick={() => setDownloadReceipt(payment)}
+                  >
+                    <FileText size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr className="payments-table-row">
+            <td colSpan="7" className="payments-no-data-cell">
+              <AlertCircle size={48} />
+              <p className="payments-no-data-text">No payment records found</p>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
 
         {paymentData.length > 0 && totalPages > 1 && (
           <div className="payment-pagination-premium-controls bottom">

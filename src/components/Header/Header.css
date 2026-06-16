@@ -580,7 +580,7 @@ background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
   }
   
   .user-glass-dropdown {
-    width: calc(100vw - 115px);
+    /* width: calc(100vw - 115px); */
     right: -12px;
     top: calc(100% + 12px);
     border-radius: 20px;

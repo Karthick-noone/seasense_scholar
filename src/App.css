@@ -218,7 +218,7 @@
 .deactivated-ok-btn.disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #ccc;
+  /* background: #ccc; */
 }
 
 .deactivated-ok-btn.disabled:hover {

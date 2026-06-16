@@ -658,7 +658,7 @@
     grid-template-columns: 1fr;
   }
   .complaint-table-wrapper {
-    max-width: 420px;
+    /* max-width: 420px; */
     zoom: .9;
   }
   .complaint-table-responsive {
@@ -824,6 +824,10 @@
   .complaint-modal-container {
     width: 95%;
     max-width: 95%;
+  }
+    .complaint-table-wrapper {
+    /* max-width: 420px; */
+    zoom: .8;
   }
 
   .complaint-modal-body {
@@ -1376,6 +1380,10 @@
   .rating-options {
     flex-direction: column;
   }
+.pagination-premium-controls {
+  zoom: .8;
+}
+  
 
   .rating-option {
     justify-content: center;

@@ -100,7 +100,6 @@ useEffect(() => {
   return (
     <div className={`app ${theme}`}>
       {/* Status Popup */}
-     // Update the button JSX
 {showPopup && isServerError && (
   <div className="deactivated-modal-overlay">
     <div className="deactivated-modal-content">
