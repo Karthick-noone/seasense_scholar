@@ -927,6 +927,10 @@ transform: translateY(-4px);
   font-size: 9px;
   font-weight: 600;
   color: white;
+  /* margin-left: 4px; */
+  position: absolute;
+  left: 2px;
+
 }
 
 .stat-badge {

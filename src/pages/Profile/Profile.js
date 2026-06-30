@@ -67,7 +67,7 @@ const Profile = () => {
     ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
     : null;
 
-  console.log("Scholar Image", scholarImage)
+  // console.log("Scholar Image", scholarImage)
 
   const [workProgress, setWorkProgress] = useState(0);
   const lastWorkStatus = lastStatus?.status;

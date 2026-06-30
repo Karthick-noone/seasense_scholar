@@ -5,6 +5,7 @@ import './Login.css';
 import logo from './../../assets/img/logo.png';
 import { loginUser } from './../../services/authService';
 import { secureStorage } from "../../utils/secureStorage";
+import { getCompanyUrl } from '../../utils/getCompanyUrl';
 
 const Login = ({ onLogin }) => {
   const [scholarId, setScholarId] = useState('');
@@ -21,6 +22,9 @@ const Login = ({ onLogin }) => {
     }
   }, [navigate]);
 
+      // const currentUrl = window.location.origin; // Gets http://localhost:3000 or your domain
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -30,7 +34,8 @@ const Login = ({ onLogin }) => {
       const res = await loginUser({
         user_id: scholarId,
         pwd: password,
-        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://seasensescholar.seasense.in/"
+        com_url_code: getCompanyUrl()
+        // com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://seasensescholar.seasense.in"
       });
 
       const { token, user, scholar, company_details, last_work_details } = res.data;

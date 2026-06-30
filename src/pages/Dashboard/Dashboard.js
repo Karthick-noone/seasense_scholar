@@ -243,7 +243,7 @@ const Dashboard = () => {
       value: resolvedComplaints,
       color: '#8b5cf6',
       bgColor: 'rgba(139, 92, 246, 0.1)',
-      path: '/complain-register',
+      path: '/complaint-register',
       status: "resolved"
     },
     {
@@ -253,7 +253,7 @@ const Dashboard = () => {
       color: '#ef4444',
       bgColor: 'rgba(239, 68, 68, 0.1)',
       isZero: pendingComplaints === 0,
-      path: '/complain-register',
+      path: '/complaint-register',
       status: "pending"
     },
   ];

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Receipt, Calendar, Tag, DollarSign, Building2, IndianRupeeIcon, InfoIcon } from 'lucide-react';
+import { AlertCircle, CheckCircle, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Receipt, Calendar, Tag, DollarSign, Building2, IndianRupeeIcon, InfoIcon } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 import html2canvas from 'html2canvas';
@@ -9,6 +9,7 @@ import { secureStorage } from '../../utils/secureStorage';
 import logo from './../../assets/img/logo.png'
 import { useScholar } from '../../hooks/useScholar';
 import Loader from './../../components/Loader/Loader';
+import { FaUsers } from 'react-icons/fa';
 
 
 const PaymentHistory = () => {
@@ -23,6 +24,9 @@ const PaymentHistory = () => {
   } = usePayments();
   // console.log("Payment data:", paymentData)
   const payment = paymentData[0];
+  const totalReferralAmount = Number(
+    paymentData?.overall_referral_amount ?? paymentData?.[0]?.overall_referral_amount ?? 0
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -32,24 +36,24 @@ const PaymentHistory = () => {
   // const companyDetails = secureStorage.getCompany()
   // const scholarDetails = secureStorage.getScholar()
 
-  const {data: scholarDetails, isLoading: scholarLoading } = useScholar()
-  const {data: companyDetails,isLoading: companyLoading } = useScholar()
+  const { data: scholarDetails, isLoading: scholarLoading } = useScholar()
+  const { data: companyDetails, isLoading: companyLoading } = useScholar()
   // console.log("scholarDetails", scholarDetails)
   // if (loading) {
   //   return <Shimmer type="table" count={1} />;
   // }
-  
-    // Track loading states
-    useEffect(() => {
-      // Check if both hooks have finished loading
-      if (!scholarLoading && !companyLoading) {
-        // Small delay for smooth transition
-        setTimeout(() => {
-          setLoading(false);
-          setIsDataReady(true);
-        }, 100);
-      }
-    }, [scholarLoading, companyLoading]);
+
+  // Track loading states
+  useEffect(() => {
+    // Check if both hooks have finished loading
+    if (!scholarLoading && !companyLoading) {
+      // Small delay for smooth transition
+      setTimeout(() => {
+        setLoading(false);
+        setIsDataReady(true);
+      }, 100);
+    }
+  }, [scholarLoading, companyLoading]);
 
   // Add this helper function to convert amount to words
   const numberToWords = (num) => {
@@ -713,62 +717,73 @@ const PaymentHistory = () => {
   };
 
   // Get page numbers to display - Maximum 4 pages
-const getPageNumbers = () => {
-  const pageNumbers = [];
-  const maxPagesToShow = 4; // Changed to 4
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 4; // Changed to 4
 
-  if (totalPages <= maxPagesToShow) {
-    // If 4 pages or less, show all pages
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(i);
+    if (totalPages <= maxPagesToShow) {
+      // If 4 pages or less, show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // For more than 4 pages
+      if (currentPage <= 2) {
+        // Current page is 1 or 2
+        // Show: 1, 2, 3, ..., last
+        pageNumbers.push(1, 2, 3);
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+      else if (currentPage >= totalPages - 1) {
+        // Current page is last or second last
+        // Show: 1, ..., last-2, last-1, last
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
+      }
+      else {
+        // Current page is in the middle
+        // Show: 1, ..., current, ..., last
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        pageNumbers.push(currentPage);
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
     }
-  } else {
-    // For more than 4 pages
-    if (currentPage <= 2) {
-      // Current page is 1 or 2
-      // Show: 1, 2, 3, ..., last
-      pageNumbers.push(1, 2, 3);
-      pageNumbers.push('...');
-      pageNumbers.push(totalPages);
-    } 
-    else if (currentPage >= totalPages - 1) {
-      // Current page is last or second last
-      // Show: 1, ..., last-2, last-1, last
-      pageNumbers.push(1);
-      pageNumbers.push('...');
-      pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
-    }
-    else {
-      // Current page is in the middle
-      // Show: 1, ..., current, ..., last
-      pageNumbers.push(1);
-      pageNumbers.push('...');
-      pageNumbers.push(currentPage);
-      pageNumbers.push('...');
-      pageNumbers.push(totalPages);
-    }
-  }
 
-  return pageNumbers;
-};
+    return pageNumbers;
+  };
 
   const capsLetter = (name) => {
     if (!name) return;
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
-    if (loading || isFetching) {
+  if (loading || isFetching) {
     return (
       <div className="dashboard-loader-wrapper">
-        <Loader 
-          type="scholar" 
-          size="large" 
+        <Loader
+          type="scholar"
+          size="large"
           text="Loading payments data...."
         />
       </div>
     );
   }
 
+  // Add this function before the return statement
+  const getUniqueReferralData = (payment) => {
+    if (!payment.referral_data || payment.referral_data.length === 0) {
+      return [];
+    }
+    return payment.referral_data;
+  };
+
+  const hasReferral = (payment) => {
+    return payment.referral_data && payment.referral_data.length > 0;
+  };
   return (
     <div className="payment-history-page">
       <div className="payment-limit">
@@ -809,6 +824,17 @@ const getPageNumbers = () => {
               <span className="stat-value">₹{payment?.bal_amt}</span>
             </div>
           </div>
+          {totalReferralAmount > 0 && (
+            <div className="stat-card referral-stat">
+              <div className="stat-icon referral">
+                <Users size={24} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-label">Total Referral Amount</span>
+                <span className="stat-value card-referral-amount">₹{totalReferralAmount.toLocaleString()}</span>
+              </div>
+            </div>
+          )}
           <div className="stat-card">
             <div className="stat-icon violet">
               <Wallet size={24} />
@@ -839,7 +865,7 @@ const getPageNumbers = () => {
           </div>
           <div className='row-section'>
 
-    {/*       <button
+            {/*       <button
             className="print-all-btn"
             onClick={handlePrintAll}
             disabled={approvedPayments.length === 0}
@@ -854,95 +880,107 @@ const getPageNumbers = () => {
             </svg>
             Print All
           </button> */}
-          <div className="pagination-info-premium">
-            Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, paymentData.length)} of {paymentData.length} entries
-          </div>
+            <div className="pagination-info-premium">
+              Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, paymentData.length)} of {paymentData.length} entries
+            </div>
           </div>
 
         </div>
 
         <div className="payments-table-wrapper">
-  <div className="payments-table-responsive">
-    <table className="payments-data-table">
-      <thead className="payments-table-header">
-        <tr>
-          <th className="payments-table-head">Date</th>
-          <th className="payments-table-head">Payment Purpose</th>
-          <th className="payments-table-head">Paid Amount</th>
-          <th className="payments-table-head">Bank</th>
-          <th className="payments-table-head">Status</th>
-          <th className="payments-table-head">View</th>
-          <th className="payments-table-head">Receipt</th>
-        </tr>
-      </thead>
-      <tbody className="payments-table-body">
-        {isLoading || isFetching ? (
-          <tr className="payments-loading-row">
-            <td colSpan="7" className="payments-loading-cell">
-              <div className="payments-loading-state">
-                <div className="loading-spinner"></div>
-                <p>Loading payments...</p>
-              </div>
-            </td>
-          </tr>
-        ) : (currentRows.length > 0 ? (
-          currentRows.map(payment => (
-            <tr key={payment.id} className="payments-table-row">
-              <td className="payments-table-cell" data-label="Date">
-                {new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric"
-                })}
-              </td>
-              <td className="payments-table-cell" data-label="Payment Purpose">
-                {payment.purpose.pay_purpose}
-              </td>
-              <td className="payments-table-cell amount-cell" data-label="Paid Amount">
-                ₹{payment.pay_received.toLocaleString()}
-              </td>
-              <td className="payments-table-cell" data-label="Bank">
-                {payment.bank.bank_nm}
-              </td>
-              <td className="payments-table-cell" data-label="Status">
-                <span className={`status-badge ${payment.pay_status}`}>
-                  {capsLetter(payment.pay_status)}
-                </span>
-              </td>
-              <td className="payments-table-cell" data-label="View">
-                <div className="payments-action-buttons">
-                  <button
-                    className="payments-action-btn payments-view-btn"
-                    onClick={() => setSelectedPayment(payment)}
-                  >
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </td>
-              <td className="payments-table-cell" data-label="Receipt">
-                <div className="payments-action-buttons">
-                  <button
-                    className="payments-action-btn payments-receipt-btn"
-                    onClick={() => setDownloadReceipt(payment)}
-                  >
-                    <FileText size={16} />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))
-        ) : (
-          <tr className="payments-table-row">
-            <td colSpan="7" className="payments-no-data-cell">
-              <AlertCircle size={48} />
-              <p className="payments-no-data-text">No payment records found</p>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          <div className="payments-table-responsive">
+            <table className="payments-data-table">
+              <thead className="payments-table-header">
+                <tr>
+                  <th className="payments-table-head">Date</th>
+                  <th className="payments-table-head">Payment Purpose</th>
+                  <th className="payments-table-head">Paid Amount</th>
+                  <th className="payments-table-head">Bank</th>
+                  <th className="payments-table-head">Status</th>
+                  <th className="payments-table-head">View</th>
+                  <th className="payments-table-head">Receipt</th>
+                </tr>
+              </thead>
+              <tbody className="payments-table-body">
+                {isLoading || isFetching ? (
+                  <tr className="payments-loading-row">
+                    <td colSpan="7" className="payments-loading-cell">
+                      <div className="payments-loading-state">
+                        <div className="loading-spinner"></div>
+                        <p>Loading payments...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (currentRows.length > 0 ? (
+                  currentRows.map(payment => (
+                    <tr key={payment.id} className="payments-table-row">
+                      <td className="payments-table-cell" data-label="Date">
+                        {new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </td>
+                      <td className="payments-table-cell" data-label="Payment Purpose">
+                        {payment.purpose.pay_purpose}
+                      </td>
+                     <td className="payments-table-cell amount-cell" data-label="Paid Amount">
+  <div className="amount-wrapper">
+    <div className="paid-amount">
+      ₹{payment.pay_received.toLocaleString()}
+    </div>
+    {payment.referral_data && payment.referral_data.length > 0 && (
+      <div className="referral-amount-wrapper">
+        <FaUsers className="referral-icon" />
+        <span className="referral-amount">
+          ₹{payment.referral_data[0]?.referral_amount?.toLocaleString() || 0}
+        </span>
+      </div>
+    )}
   </div>
-</div>
+</td>
+                      <td className="payments-table-cell" data-label="Bank">
+                        {payment.bank.bank_nm}
+                      </td>
+                      <td className="payments-table-cell" data-label="Status">
+                        <span className={`status-badge ${payment.pay_status}`}>
+                          {capsLetter(payment.pay_status)}
+                        </span>
+                      </td>
+                      <td className="payments-table-cell" data-label="View">
+                        <div className="payments-action-buttons">
+                          <button
+                            className="payments-action-btn payments-view-btn"
+                            onClick={() => setSelectedPayment(payment)}
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="payments-table-cell" data-label="Receipt">
+                        <div className="payments-action-buttons">
+                          <button
+                            className="payments-action-btn payments-receipt-btn"
+                            onClick={() => setDownloadReceipt(payment)}
+                          >
+                            <FileText size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="payments-table-row">
+                    <td colSpan="7" className="payments-no-data-cell">
+                      <AlertCircle size={48} />
+                      <p className="payments-no-data-text">No payment records found</p>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {paymentData.length > 0 && totalPages > 1 && (
           <div className="payment-pagination-premium-controls bottom">
@@ -1012,112 +1050,167 @@ const getPageNumbers = () => {
               </div>
 
               <div className="payment-modal-body">
-                {/* Receipt Number */}
-                {/* <div className="payment-info-row">
-          <div className="payment-info-left">
-            <Receipt className="payment-info-icon" size={18} />
-            <span className="payment-info-label">Receipt Number</span>
-          </div>
-          <div className="payment-info-right">
-            <span className="payment-info-value">{selectedPayment.receipt || 'N/A'}</span>
-          </div>
-        </div> */}
-
-                {/* Date */}
-                <div className="payment-info-row">
-                  <div className="payment-info-left">
-                    <Calendar className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Transaction Date</span>
-                  </div>
-                  <div className="payment-info-right">
-                    <span className="payment-info-value">
-                      {new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-                      })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Payment Purpose */}
-                <div className="payment-info-row">
-                  <div className="payment-info-left">
-                    <Tag className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Payment Purpose</span>
-                  </div>
-                  <div className="payment-info-right">
-                    <span className="payment-info-value">{selectedPayment.purpose.pay_purpose}</span>
-                  </div>
-                </div>
-
-                <div className="payment-info-row">
-                  <div className="payment-info-left">
-                    <Wallet className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Total Amount</span>
-                  </div>
-                  <div className="payment-info-right">
-                    <span className="payment-info-value">₹{payment?.total_amount}</span>
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <div className="payment-info-row paid-amount-row">
-                  <div className="payment-info-left">
-                    <IndianRupeeIcon className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Last Payment Amount</span>
-                  </div>
-                  <div className="payment-info-right">
-                    <span className="payment-amount-value">₹{selectedPayment.pay_received}</span>
-                  </div>
-                </div>
-
-                <div className="payment-info-row">
-                  <div className="payment-info-left">
-                    <CheckCircle className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Total Paid</span>
-                  </div>
-                  <div className="payment-info-right">
-                    <span className="payment-info-value">₹{selectedPayment?.tot_paid}</span>
-                  </div>
-                </div>
-                {selectedPayment?.bal_amt > 0 && (
-                  <div className="payment-info-row balance-amount-row" >
-                    <div className="payment-info-left">
-                      <InfoIcon className="payment-info-icon" size={18} />
-                      <span className="payment-info-label">Balance Amount</span>
+                {/* Grid Layout for Payment Details - 3 columns */}
+                <div className="payment-details-grid">
+                  {/* Date */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Calendar size={16} />
                     </div>
-                    <div className="payment-info-right">
-                      <span className="balance-amount-value">₹{selectedPayment?.bal_amt}</span>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Transaction Date</span>
+                      <span className="payment-detail-value">
+                        {new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </span>
                     </div>
                   </div>
-                )}
 
-                {/* Bank */}
-                <div className="payment-info-row">
-                  <div className="payment-info-left">
-                    <Building2 className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Bank</span>
+                  {/* Payment Purpose */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Tag size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Payment Purpose</span>
+                      <span className="payment-detail-value">{selectedPayment.purpose.pay_purpose}</span>
+                    </div>
                   </div>
-                  <div className="payment-info-right">
-                    <span className="payment-info-value">{selectedPayment.bank.bank_nm}</span>
+
+                  {/* Total Amount */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Wallet size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Total Amount</span>
+                      <span className="payment-detail-value">₹{payment?.total_amount}</span>
+                    </div>
                   </div>
+
+                  {/* Last Payment Amount */}
+                  <div className="payment-detail-item highlight-item">
+                    <div className="payment-detail-icon">
+                      <IndianRupeeIcon size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Last Payment Amount</span>
+                      <span className="payment-detail-value highlight-value">₹{selectedPayment.pay_received}</span>
+                    </div>
+                  </div>
+
+                  {/* Total Paid */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <CheckCircle size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Total Paid</span>
+                      <span className="payment-detail-value">₹{selectedPayment?.tot_paid}</span>
+                    </div>
+                  </div>
+
+                  {/* Balance Amount */}
+                  <div className="payment-detail-item balance-item">
+                    <div className="payment-detail-icon">
+                      <InfoIcon size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Balance Amount</span>
+                      <span className="payment-detail-value balance-value">₹{selectedPayment?.bal_amt}</span>
+                    </div>
+                  </div>
+
+                  {/* Bank */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Building2 size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Bank</span>
+                      <span className="payment-detail-value">{selectedPayment.bank.bank_nm}</span>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <CreditCard size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Status</span>
+                      <span className={`payment-status payment-status-${selectedPayment.pay_status}`}>
+                        {capsLetter(selectedPayment.pay_status)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Payment Completed */}
+                  {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
+                    <div className="payment-detail-item completed-item">
+                      <div className="payment-detail-icon">
+                        <CheckCircle size={16} />
+                      </div>
+                      <div className="payment-detail-content">
+                        <span className="payment-detail-label">Payment Status</span>
+                        <span className="payment-completed-badge">✓ Completed</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Status */}
-                <div className="payment-info-row">
-                  <div className="payment-info-left">
-                    <CreditCard className="payment-info-icon" size={18} />
-                    <span className="payment-info-label">Status</span>
-                  </div>
-                  <div className="payment-info-right">
-                    <span className={`payment-status payment-status-${selectedPayment.pay_status}`}>
-                      {capsLetter(selectedPayment.pay_status)}
-                    </span>
-                  </div>
-                </div>
-                {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
-                  <div className="payment-completed-container"><span className="payment-completed-message">✓ Payment Completed</span></div>
+                {/* Referral Section - Show only if referral exists */}
+                {hasReferral(selectedPayment) && (
+                  <>
+                    <div className="referral-header-section">
+                      <div className="referral-header-left">
+                        <Users size={18} className="referral-header-icon" />
+                        <span className="referral-header-title">Referral Details</span>
+                      </div>
+                      <div className="referral-header-right">
+                        <span className="referral-total-label">Total:</span>
+                        <span className="referral-total-amount">₹{selectedPayment.total_referral_amt || 0}</span>
+                      </div>
+                    </div>
+
+                    <div className="referral-table-wrapper">
+                      <table className="referral-details-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Referred Person</th>
+                            <th>Referral Amount</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedPayment.referral_data.map((referral, index) => (
+                            <tr key={referral.id}>
+                              <td>{index + 1}</td>
+                              <td>{referral.referred_person}</td>
+                              <td>₹{referral.referral_amount}</td>
+                              <td>{referral.referral_reason || 'N/A'}</td>
+                              <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric"
+                              })}</td>
+                              <td>
+                                <span className={`referral-status-badge ${referral.referral_status}`}>
+                                  {capsLetter(referral.referral_status)}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -1138,20 +1231,13 @@ const getPageNumbers = () => {
               {/* Body */}
               <div className="receipt-premium-body">
                 <div className="receipt-premium-content" id="receipt-content">
-
-
-                  {/* <div className="receipt-premium-badge">
-              <FileText size={18} />
-              <span>RECEIPT</span>
-            </div> */}
                   <div className='receipt-company-logo-container'>
-                    <img src={logo} className='receipt-company-logo' />
+                    <img src={logo} className='receipt-company-logo' alt="Logo" />
                   </div>
 
                   <div className="receipt-premium-company">
                     <h3>{companyDetails?.company.company_name}</h3>
                     <p>{companyDetails?.company.address}</p>
-                    {/* <p>{companyDetails.location}, India</p> */}
                     <p>Email: {companyDetails?.company.email_id} | Contact: {companyDetails?.company.com_contact}</p>
                   </div>
 
@@ -1165,7 +1251,9 @@ const getPageNumbers = () => {
                       })}
                     </strong>
                     <div>
-                      <span className={`receipt-premium-status ${downloadReceipt.pay_status}`}>{capsLetter(downloadReceipt.pay_status)}</span>
+                      <span className={`receipt-premium-status ${downloadReceipt.pay_status}`}>
+                        {capsLetter(downloadReceipt.pay_status)}
+                      </span>
                     </div>
                   </div>
 
@@ -1177,23 +1265,23 @@ const getPageNumbers = () => {
                     <div className="receipt-premium-info-row">
                       <div className="receipt-premium-info-item">
                         <label>Scholar Name</label>
-                        <p>{scholarDetails.user_name}</p>
+                        <p>{scholarDetails?.user_name}</p>
                       </div>
                       <div className="receipt-premium-info-item">
                         <label>Scholar ID</label>
-                        <p>{scholarDetails.user_id}</p>
+                        <p>{scholarDetails?.user_id}</p>
                       </div>
                       <div className="receipt-premium-info-item">
                         <label>Email</label>
-                        <p>{scholarDetails.email}</p>
+                        <p>{scholarDetails?.email}</p>
                       </div>
                       <div className="receipt-premium-info-item">
                         <label>Contact Number</label>
-                        <p>{scholarDetails.contact}</p>
+                        <p>{scholarDetails?.contact}</p>
                       </div>
                       <div className="receipt-premium-info-item full-width">
                         <label>Work Description</label>
-                        <p>{scholarDetails.work_description}</p>
+                        <p>{scholarDetails?.work_description}</p>
                       </div>
                     </div>
                   </div>
@@ -1201,35 +1289,28 @@ const getPageNumbers = () => {
                   {/* Section 2: Payment Details */}
                   <div className="receipt-premium-section">
                     <h4>Payment Details</h4>
-
                     <table className="receipt-premium-table">
                       <tbody>
                         <tr>
                           <th>Payment Purpose</th>
                           <td>{downloadReceipt.purpose.pay_purpose}</td>
                         </tr>
-
                         <tr>
                           <th>Total Amount</th>
                           <td>₹{downloadReceipt.total_amount}</td>
                         </tr>
-
                         <tr className="highlight-row">
                           <th>Last Payment Amount</th>
                           <td>₹{downloadReceipt.pay_received}</td>
                         </tr>
-
                         <tr>
                           <th>Total Paid</th>
                           <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
-                        {/* {downloadReceipt?.bal_amt > 0 && ( */}
                         <tr className="balance-row">
                           <th>Balance Amount</th>
                           <td>₹{downloadReceipt.bal_amt}</td>
                         </tr>
-                        {/* )} */}
-
                         <tr className="full-width-row">
                           <th>Last Payment Amount in Words</th>
                           <td>
@@ -1240,56 +1321,86 @@ const getPageNumbers = () => {
                     </table>
                   </div>
 
+                  {/* Referral Section - Show only if referral exists */}
+                  {hasReferral(downloadReceipt) && (
+                    <>
+                      <div className="referral-header-section">
+                        <div className="referral-header-left">
+                          <Users size={18} className="referral-header-icon" />
+                          <span className="referral-header-title">Referral Details</span>
+                        </div>
+                        <div className="referral-header-right">
+                          <span className="referral-total-label">Total:</span>
+                          <span className="referral-total-amount">₹{downloadReceipt.total_referral_amt || 0}</span>
+                        </div>
+                      </div>
+
+                      <div className="referral-table-wrapper">
+                        <table className="referral-details-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Referred Person</th>
+                              <th>Referral Amount</th>
+                              <th>Reason</th>
+                              <th>Date</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {downloadReceipt.referral_data.map((referral, index) => (
+                              <tr key={referral.id}>
+                                <td>{index + 1}</td>
+                                <td>{referral.referred_person}</td>
+                                <td>₹{referral.referral_amount}</td>
+                                <td>{referral.referral_reason || 'N/A'}</td>
+                                <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric"
+                                })}</td>
+                                <td>
+                                  <span className={`referral-status-badge ${referral.referral_status}`}>
+                                    {capsLetter(referral.referral_status)}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+
                   {/* Section 3: Bank Details */}
                   <div className="receipt-premium-section">
                     <h4>Bank Details</h4>
                     <div className="receipt-bank-info-row">
                       <div className="receipt-premium-info-item">
                         <label>Payment Method</label>
-                        <p>Bank Transfer - {downloadReceipt.bank.bank_nm}</p>
+                        <p>Bank Transfer - {downloadReceipt.bank?.bank_nm}</p>
                       </div>
-                      {/* <div className="receipt-premium-info-item">
-                        <label>Transaction ID</label>
-                        <p>{downloadReceipt.id || 'N/A'}</p>
-                      </div> */}
                       <div className="receipt-premium-info-item">
                         <label>Account Status</label>
-                        <p>{scholarDetails.gst_status === "gst" ? "Account 1" : "Account 2"}</p>
+                        <p>{downloadReceipt.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Section 4: Status */}
-                  {/* <div className="receipt-premium-section status-section">
-            <div className={`receipt-premium-status ${downloadReceipt.pay_status}`}>
-              {downloadReceipt.pay_status === 'approved' ? '✓ PAYMENT SUCCESSFUL' : 
-               downloadReceipt.pay_status === 'pending' ? '⏳ PAYMENT PENDING' : '✗ PAYMENT FAILED'}
-            </div>
-          </div> */}
-
                   <div className="receipt-premium-divider"></div>
-
-                  {/* Footer */}
-                  {/* <div className="receipt-premium-footer">
-                    <div className="receipt-premium-signature">
-                      <p>Authorized Signature</p>
-                      <span>{companyDetails?.company.company_name}</span>
-                    </div>
-        
-                  </div> */}
                 </div>
               </div>
 
               {/* Footer Actions */}
               {/* <div className="receipt-premium-actions">
-                <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
-                  Close
-                </button>
-                <button className="receipt-premium-download" onClick={() => handleDownloadReceipt()}>
-                  <Download size={16} />
-                  Download Receipt
-                </button>
-              </div> */}
+        <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
+          Close
+        </button>
+        <button className="receipt-premium-download" onClick={handleDownloadReceipt}>
+          <Download size={16} />
+          Download Receipt
+        </button>
+      </div> */}
             </div>
           </div>
         )}
