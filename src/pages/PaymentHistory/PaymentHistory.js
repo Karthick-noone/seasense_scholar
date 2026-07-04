@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Receipt, Calendar, Tag, DollarSign, Building2, IndianRupeeIcon, InfoIcon } from 'lucide-react';
-import Shimmer from '../../components/Shimmer/Shimmer';
+import { AlertCircle, CheckCircle, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard,  Eye, FileText, IndianRupee, Wallet, XCircle,  Calendar, Tag,  Building2, IndianRupeeIcon, InfoIcon } from 'lucide-react';
+// import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
-import html2canvas from 'html2canvas';
-import * as jspdf from 'jspdf';
+// import html2canvas from 'html2canvas';
+// import * as jspdf from 'jspdf';
 import { usePayments } from '../../hooks/usePayments';
-import { secureStorage } from '../../utils/secureStorage';
+// import { secureStorage } from '../../utils/secureStorage';
 import logo from './../../assets/img/logo.png'
 import { useScholar } from '../../hooks/useScholar';
 import Loader from './../../components/Loader/Loader';
@@ -20,17 +20,18 @@ const PaymentHistory = () => {
     data: paymentData = [],
     isLoading,
     isFetching,
-    refetch
+    // refetch
   } = usePayments();
-  // console.log("Payment data:", paymentData)
   const payment = paymentData[0];
+  // console.log("Payment data:", paymentData)
+
   const totalReferralAmount = Number(
     paymentData?.overall_referral_amount ?? paymentData?.[0]?.overall_referral_amount ?? 0
   );
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [isDataReady, setIsDataReady] = useState(false);
+  // const [isDataReady, setIsDataReady] = useState(false);
 
 
   // const companyDetails = secureStorage.getCompany()
@@ -50,7 +51,7 @@ const PaymentHistory = () => {
       // Small delay for smooth transition
       setTimeout(() => {
         setLoading(false);
-        setIsDataReady(true);
+        // setIsDataReady(true);
       }, 100);
     }
   }, [scholarLoading, companyLoading]);
@@ -76,605 +77,605 @@ const PaymentHistory = () => {
     return convertToWords(Math.floor(num));
   };
 
-  const approvedPayments = paymentData.filter(p => p.pay_status === 'approved');
+  // const approvedPayments = paymentData.filter(p => p.pay_status === 'approved');
 
   // Add this function before the return statement
-  const handlePrintAll = () => {
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
+  // const handlePrintAll = () => {
+  //   // Create a new window for printing
+  //   const printWindow = window.open('', '_blank');
 
-    // Get company and scholar details
-    const companyName = companyDetails?.company.company_name || 'Company Name';
-    const companyAddress = companyDetails?.company.address || '';
-    const companyEmail = companyDetails?.company.email_id || '';
-    const companyContact = companyDetails?.company.com_contact || '';
-    const scholarName = scholarDetails?.user_name || '';
-    const scholarId = scholarDetails?.user_id || '';
-    const scholarEmail = scholarDetails?.email || '';
-    const scholarContact = scholarDetails?.contact || '';
-    const workDescription = scholarDetails?.work_description || '';
+  //   // Get company and scholar details
+  //   const companyName = companyDetails?.company.company_name || 'Company Name';
+  //   const companyAddress = companyDetails?.company.address || '';
+  //   const companyEmail = companyDetails?.company.email_id || '';
+  //   const companyContact = companyDetails?.company.com_contact || '';
+  //   const scholarName = scholarDetails?.user_name || '';
+  //   const scholarId = scholarDetails?.user_id || '';
+  //   const scholarEmail = scholarDetails?.email || '';
+  //   const scholarContact = scholarDetails?.contact || '';
+  //   const workDescription = scholarDetails?.work_description || '';
 
-    // Filter only approved payments
-    // const approvedPayments = paymentData.filter(p => p.pay_status === 'approved');
+  //   // Filter only approved payments
+  //   // const approvedPayments = paymentData.filter(p => p.pay_status === 'approved');
 
-    // Calculate totals
-    const totalAmount = paymentData[0]?.total_amount || 0;
-    const totalPaid = paymentData[0]?.tot_paid || 0;
-    const balanceAmount = paymentData[0]?.bal_amt || 0;
+  //   // Calculate totals
+  //   const totalAmount = paymentData[0]?.total_amount || 0;
+  //   const totalPaid = paymentData[0]?.tot_paid || 0;
+  //   // const balanceAmount = paymentData[0]?.bal_amt || 0;
 
-    // Create the print HTML
-    const printContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Payment History Report</title>
-      <meta charset="UTF-8">
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
+  //   // Create the print HTML
+  //   const printContent = `
+  //   <!DOCTYPE html>
+  //   <html>
+  //   <head>
+  //     <title>Payment History Report</title>
+  //     <meta charset="UTF-8">
+  //     <style>
+  //       * {
+  //         margin: 0;
+  //         padding: 0;
+  //         box-sizing: border-box;
+  //       }
         
-        body {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          padding: 20px 10px;
-          background: white;
-          color: #1f2937;
-        }
+  //       body {
+  //         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  //         padding: 20px 10px;
+  //         background: white;
+  //         color: #1f2937;
+  //       }
         
-        .print-container {
-          max-width: 1200px;
-          margin: 0 auto;
-        }
+  //       .print-container {
+  //         max-width: 1200px;
+  //         margin: 0 auto;
+  //       }
         
-        /* Header Section */
-        .print-header {
-          text-align: center;
-          margin-bottom: 10px;
-          padding-bottom: 5px;
-          border-bottom: 2px solid #e5e7eb;
-        }
+  //       /* Header Section */
+  //       .print-header {
+  //         text-align: center;
+  //         margin-bottom: 10px;
+  //         padding-bottom: 5px;
+  //         border-bottom: 2px solid #e5e7eb;
+  //       }
         
-        .company-logo {
-          max-width: 200px;
-          margin-bottom: 5px;
-        }
+  //       .company-logo {
+  //         max-width: 200px;
+  //         margin-bottom: 5px;
+  //       }
         
-        .company-name {
-          font-size: 20px;
-          font-weight: 700;
-          color: #1f2937;
-          margin-bottom: 3px;
-        }
+  //       .company-name {
+  //         font-size: 20px;
+  //         font-weight: 700;
+  //         color: #1f2937;
+  //         margin-bottom: 3px;
+  //       }
         
-        .company-details {
-          font-size: 13px;
-          color: #6b7280;
-          line-height: 1.5;
-        }
+  //       .company-details {
+  //         font-size: 13px;
+  //         color: #6b7280;
+  //         line-height: 1.5;
+  //       }
         
-        .company-details-date {
-          display: flex;
-          align-items: flex-start;
-          font-size: 13px;
-          color: #6b7280;
-          line-height: 1.5;
-          margin-top:10px;
-        }
+  //       .company-details-date {
+  //         display: flex;
+  //         align-items: flex-start;
+  //         font-size: 13px;
+  //         color: #6b7280;
+  //         line-height: 1.5;
+  //         margin-top:10px;
+  //       }
         
-        .report-title {
-          font-size: 20px;
-          font-weight: 600;
-          margin: 20px 0 10px;
-          color: #374151;
-        }
+  //       .report-title {
+  //         font-size: 20px;
+  //         font-weight: 600;
+  //         margin: 20px 0 10px;
+  //         color: #374151;
+  //       }
         
-        /* Scholar Info Section */
-        .scholar-section {
-          background: #f9fafb;
-          padding: 20px;
-          border-radius: 12px;
-          margin-bottom: 10px;
-        }
+  //       /* Scholar Info Section */
+  //       .scholar-section {
+  //         background: #f9fafb;
+  //         padding: 20px;
+  //         border-radius: 12px;
+  //         margin-bottom: 10px;
+  //       }
         
-        .scholar-section h4 {
-          font-size: 16px;
-          font-weight: 600;
-          margin-bottom: 15px;
-          color: #374151;
-          border-left: 3px solid #10b981;
-          padding-left: 12px;
-        }
+  //       .scholar-section h4 {
+  //         font-size: 16px;
+  //         font-weight: 600;
+  //         margin-bottom: 15px;
+  //         color: #374151;
+  //         border-left: 3px solid #10b981;
+  //         padding-left: 12px;
+  //       }
         
-        .scholar-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 5px;
-        }
+  //       .scholar-grid {
+  //         display: grid;
+  //         grid-template-columns: repeat(2, 1fr);
+  //         gap: 5px;
+  //       }
         
-        .scholar-item {
-          display: flex;
-          align-items: baseline;
-          gap: 5px;
-        }
+  //       .scholar-item {
+  //         display: flex;
+  //         align-items: baseline;
+  //         gap: 5px;
+  //       }
         
-        .scholar-label {
-          font-size: 13px;
-          font-weight: 500;
-          color: #6b7280;
-          min-width: 120px;
-        }
+  //       .scholar-label {
+  //         font-size: 13px;
+  //         font-weight: 500;
+  //         color: #6b7280;
+  //         min-width: 120px;
+  //       }
         
-        .scholar-value {
-          font-size: 14px;
-          font-weight: 500;
-          color: #1f2937;
-        }
+  //       .scholar-value {
+  //         font-size: 14px;
+  //         font-weight: 500;
+  //         color: #1f2937;
+  //       }
         
-        /* Stats Section */
-        .stats-section {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-          margin-bottom: 30px;
-        }
+  //       /* Stats Section */
+  //       .stats-section {
+  //         display: grid;
+  //         grid-template-columns: repeat(4, 1fr);
+  //         gap: 20px;
+  //         margin-bottom: 30px;
+  //       }
         
-        .stat-card {
-          background: #f9fafb;
-          padding: 16px;
-          border-radius: 12px;
-          text-align: center;
-        }
+  //       .stat-card {
+  //         background: #f9fafb;
+  //         padding: 16px;
+  //         border-radius: 12px;
+  //         text-align: center;
+  //       }
         
-        .stat-label {
-          font-size: 12px;
-          font-weight: 500;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 8px;
-        }
+  //       .stat-label {
+  //         font-size: 12px;
+  //         font-weight: 500;
+  //         color: #6b7280;
+  //         text-transform: uppercase;
+  //         letter-spacing: 0.5px;
+  //         margin-bottom: 8px;
+  //       }
         
-        .stat-amount {
-          font-size: 24px;
-          font-weight: 700;
-          color: #1f2937;
-        }
+  //       .stat-amount {
+  //         font-size: 24px;
+  //         font-weight: 700;
+  //         color: #1f2937;
+  //       }
         
-        .stat-amount.green {
-          color: #10b981;
-        }
+  //       .stat-amount.green {
+  //         color: #10b981;
+  //       }
         
-        .stat-amount.orange {
-          color: #f59e0b;
-        }
+  //       .stat-amount.orange {
+  //         color: #f59e0b;
+  //       }
         
-        .stat-amount.purple {
-          color: #8b5cf6;
-        }
+  //       .stat-amount.purple {
+  //         color: #8b5cf6;
+  //       }
         
-        /* Payment Table */
-        .payments-table-section {
-          margin-top: 10px;
-        }
+  //       /* Payment Table */
+  //       .payments-table-section {
+  //         margin-top: 10px;
+  //       }
         
-        .payments-table-section h4 {
-          font-size: 16px;
-          font-weight: 600;
-          margin-bottom: 15px;
-          color: #374151;
-        }
+  //       .payments-table-section h4 {
+  //         font-size: 16px;
+  //         font-weight: 600;
+  //         margin-bottom: 15px;
+  //         color: #374151;
+  //       }
         
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 30px;
-        }
+  //       table {
+  //         width: 100%;
+  //         border-collapse: collapse;
+  //         margin-bottom: 30px;
+  //       }
         
-        th {
-          background: #f3f4f6;
-          padding: 12px 12px;
-          text-align: left;
-          font-size: 13px;
-          font-weight: 600;
-          color: #374151;
-          border-bottom: 2px solid #e5e7eb;
-        }
+  //       th {
+  //         background: #f3f4f6;
+  //         padding: 12px 12px;
+  //         text-align: left;
+  //         font-size: 13px;
+  //         font-weight: 600;
+  //         color: #374151;
+  //         border-bottom: 2px solid #e5e7eb;
+  //       }
         
-        td {
-          padding: 12px 12px;
-          font-size: 13px;
-          color: #4b5563;
-          border-bottom: 1px solid #e5e7eb;
-        }
+  //       td {
+  //         padding: 12px 12px;
+  //         font-size: 13px;
+  //         color: #4b5563;
+  //         border-bottom: 1px solid #e5e7eb;
+  //       }
         
-        tr:last-child td {
-          border-bottom: none;
-        }
+  //       tr:last-child td {
+  //         border-bottom: none;
+  //       }
         
-        .amount {
-          font-weight: 600;
-          color: #059669;
-        }
+  //       .amount {
+  //         font-weight: 600;
+  //         color: #059669;
+  //       }
         
-        .status-badge {
-          display: inline-block;
-          padding: 4px 10px;
-          border-radius: 20px;
-          font-size: 11px;
-          font-weight: 600;
-        }
+  //       .status-badge {
+  //         display: inline-block;
+  //         padding: 4px 10px;
+  //         border-radius: 20px;
+  //         font-size: 11px;
+  //         font-weight: 600;
+  //       }
         
-        .status-badge.approved {
-          background: #d1fae5;
-          color: #059669;
-        }
+  //       .status-badge.approved {
+  //         background: #d1fae5;
+  //         color: #059669;
+  //       }
         
-        /* Footer */
-        .print-footer {
-          margin-top: 40px;
-          padding-top: 20px;
-          border-top: 1px solid #e5e7eb;
-          text-align: center;
-          font-size: 11px;
-          color: #9ca3af;
-        }
+  //       /* Footer */
+  //       .print-footer {
+  //         margin-top: 40px;
+  //         padding-top: 20px;
+  //         border-top: 1px solid #e5e7eb;
+  //         text-align: center;
+  //         font-size: 11px;
+  //         color: #9ca3af;
+  //       }
         
-        .signature {
-          margin-top: 50px;
-          text-align: right;
-        }
+  //       .signature {
+  //         margin-top: 50px;
+  //         text-align: right;
+  //       }
         
-        .signature-line {
-          margin-top: 40px;
-          padding-top: 20px;
-          border-top: 1px dashed #d1d5db;
-          width: 250px;
-          margin-left: auto;
-        }
+  //       .signature-line {
+  //         margin-top: 40px;
+  //         padding-top: 20px;
+  //         border-top: 1px dashed #d1d5db;
+  //         width: 250px;
+  //         margin-left: auto;
+  //       }
         
-        .signature-text {
-          font-size: 12px;
-          color: #6b7280;
-        }
+  //       .signature-text {
+  //         font-size: 12px;
+  //         color: #6b7280;
+  //       }
         
-        @media print {
-          body {
-            padding: 20px;
-          }
-          .no-print {
-            display: none;
-          }
-          .stat-card, .scholar-section {
-            break-inside: avoid;
-          }
-          tr {
-            break-inside: avoid;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="print-container">
-        <!-- Header -->
-        <div class="print-header">
-          <img src="${logo}" class="company-logo" alt="Logo" style="max-width: 150px;" />
-          <div class="company-name">${companyName}</div>
-          <div class="company-details">${companyAddress}</div>
-          <div class="company-details">Email: ${companyEmail} | Contact: ${companyContact}</div>
-          <!-- <div class="report-title">Payment History Report</div>-->
-          <div class="company-details-date"> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-        </div>
+  //       @media print {
+  //         body {
+  //           padding: 20px;
+  //         }
+  //         .no-print {
+  //           display: none;
+  //         }
+  //         .stat-card, .scholar-section {
+  //           break-inside: avoid;
+  //         }
+  //         tr {
+  //           break-inside: avoid;
+  //         }
+  //       }
+  //     </style>
+  //   </head>
+  //   <body>
+  //     <div class="print-container">
+  //       <!-- Header -->
+  //       <div class="print-header">
+  //         <img src="${logo}" class="company-logo" alt="Logo" style="max-width: 150px;" />
+  //         <div class="company-name">${companyName}</div>
+  //         <div class="company-details">${companyAddress}</div>
+  //         <div class="company-details">Email: ${companyEmail} | Contact: ${companyContact}</div>
+  //         <!-- <div class="report-title">Payment History Report</div>-->
+  //         <div class="company-details-date"> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+  //       </div>
         
-        <!-- Scholar Details -->
-        <div class="scholar-section">
-          <h4>Scholar Information</h4>
-          <div class="scholar-grid">
-            <div class="scholar-item">
-              <span class="scholar-label">Scholar Name:</span>
-              <span class="scholar-value">${scholarName}</span>
-            </div>
-            <div class="scholar-item">
-              <span class="scholar-label">Scholar ID:</span>
-              <span class="scholar-value">${scholarId}</span>
-            </div>
-            <div class="scholar-item">
-              <span class="scholar-label">Email:</span>
-              <span class="scholar-value">${scholarEmail}</span>
-            </div>
-            <div class="scholar-item">
-              <span class="scholar-label">Contact:</span>
-              <span class="scholar-value">${scholarContact}</span>
-            </div>
-            <div class="scholar-item" style="grid-column: span 2;">
-              <span class="scholar-label">Work Description:</span>
-              <span class="scholar-value">${workDescription}</span>
-            </div>
-          </div>
-        </div>
+  //       <!-- Scholar Details -->
+  //       <div class="scholar-section">
+  //         <h4>Scholar Information</h4>
+  //         <div class="scholar-grid">
+  //           <div class="scholar-item">
+  //             <span class="scholar-label">Scholar Name:</span>
+  //             <span class="scholar-value">${scholarName}</span>
+  //           </div>
+  //           <div class="scholar-item">
+  //             <span class="scholar-label">Scholar ID:</span>
+  //             <span class="scholar-value">${scholarId}</span>
+  //           </div>
+  //           <div class="scholar-item">
+  //             <span class="scholar-label">Email:</span>
+  //             <span class="scholar-value">${scholarEmail}</span>
+  //           </div>
+  //           <div class="scholar-item">
+  //             <span class="scholar-label">Contact:</span>
+  //             <span class="scholar-value">${scholarContact}</span>
+  //           </div>
+  //           <div class="scholar-item" style="grid-column: span 2;">
+  //             <span class="scholar-label">Work Description:</span>
+  //             <span class="scholar-value">${workDescription}</span>
+  //           </div>
+  //         </div>
+  //       </div>
         
     
         
-        <!-- Payment History Table -->
-        <div class="payments-table-section">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <h4>Payment Transaction Details</h4>
-          <span style="font-size: 14px; font-weight: 600;">Total Amount: ₹${totalAmount.toLocaleString()}</span>
-        </div>
-          <table>
-            <thead>
-              <tr>
-                <th>S. No.</th>
-                <th>Date</th>
-                <th>Payment Purpose</th>
-                <th>Paid (₹)</th>
-                <th>Balance (₹)</th>
-                <th>Bank</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${approvedPayments.map((payment, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    })}</td>
-                  <td>${payment.purpose.pay_purpose}</td>
-                  <td class="amount">₹${payment.pay_received.toLocaleString()}</td>
-                  <td >₹${payment.bal_amt.toLocaleString()}</td>
-                  <td>${payment.bank.bank_nm}</td>
+  //       <!-- Payment History Table -->
+  //       <div class="payments-table-section">
+  //       <div style="display: flex; align-items: center; justify-content: space-between;">
+  //         <h4>Payment Transaction Details</h4>
+  //         <span style="font-size: 14px; font-weight: 600;">Total Amount: ₹${totalAmount.toLocaleString()}</span>
+  //       </div>
+  //         <table>
+  //           <thead>
+  //             <tr>
+  //               <th>S. No.</th>
+  //               <th>Date</th>
+  //               <th>Payment Purpose</th>
+  //               <th>Paid (₹)</th>
+  //               <th>Balance (₹)</th>
+  //               <th>Bank</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             ${approvedPayments.map((payment, index) => `
+  //               <tr>
+  //                 <td>${index + 1}</td>
+  //                 <td>${new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
+  //     day: "2-digit",
+  //     month: "short",
+  //     year: "numeric"
+  //   })}</td>
+  //                 <td>${payment.purpose.pay_purpose}</td>
+  //                 <td class="amount">₹${payment.pay_received.toLocaleString()}</td>
+  //                 <td >₹${payment.bal_amt.toLocaleString()}</td>
+  //                 <td>${payment.bank.bank_nm}</td>
 
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
+  //               </tr>
+  //             `).join('')}
+  //           </tbody>
+  //         </table>
+  //       </div>
         
-        <!-- Summary Row -->
-        <table style="width: auto; margin-left: auto; background: #f9fafb;">
-          <tr>
-            <th style="background: #e5e7eb; border-bottom: none;">Total Payments</th>
-            <td style="font-weight: 700; color: #059669;">₹${totalPaid}</td>
-          </tr>
-        </table>
+  //       <!-- Summary Row -->
+  //       <table style="width: auto; margin-left: auto; background: #f9fafb;">
+  //         <tr>
+  //           <th style="background: #e5e7eb; border-bottom: none;">Total Payments</th>
+  //           <td style="font-weight: 700; color: #059669;">₹${totalPaid}</td>
+  //         </tr>
+  //       </table>
         
 
-        <!--
-        <div class="signature">
-          <div class="signature-line"></div>
-          <div class="signature-text">Authorized Signature</div>
-          <div class="signature-text" style="font-size: 11px;">${companyName}</div>
-        </div>
-        -->
-      </div>
+  //       <!--
+  //       <div class="signature">
+  //         <div class="signature-line"></div>
+  //         <div class="signature-text">Authorized Signature</div>
+  //         <div class="signature-text" style="font-size: 11px;">${companyName}</div>
+  //       </div>
+  //       -->
+  //     </div>
       
-      <script>
-        window.onload = function() {
-          window.print();
-          setTimeout(function() {
-            window.close();
-          }, 1000);
-        }
-      </script>
-    </body>
-    </html>
-  `;
+  //     <script>
+  //       window.onload = function() {
+  //         window.print();
+  //         setTimeout(function() {
+  //           window.close();
+  //         }, 1000);
+  //       }
+  //     </script>
+  //   </body>
+  //   </html>
+  // `;
 
-    // Write to the new window and print
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-  };
-
-
+  //   // Write to the new window and print
+  //   printWindow.document.write(printContent);
+  //   printWindow.document.close();
+  // };
 
 
 
-  const handleDownloadReceipt = async () => {
-    try {
-      // Show loading indicator
-      const downloadBtn = document.querySelector('.receipt-premium-download');
-      const originalText = downloadBtn.innerHTML;
-      downloadBtn.innerHTML = 'Generating PDF...';
-      downloadBtn.disabled = true;
 
-      const element = document.getElementById('receipt-content');
 
-      //  Create a clone of the element to avoid modifying the original
-      const cloneElement = element.cloneNode(true);
-      cloneElement.style.width = '800px';
-      cloneElement.style.padding = '10px';
-      cloneElement.style.margin = '0';
-      cloneElement.style.background = 'white';
-      cloneElement.style.boxShadow = 'none';
+  // const handleDownloadReceipt = async () => {
+  //   try {
+  //     // Show loading indicator
+  //     const downloadBtn = document.querySelector('.receipt-premium-download');
+  //     const originalText = downloadBtn.innerHTML;
+  //     downloadBtn.innerHTML = 'Generating PDF...';
+  //     downloadBtn.disabled = true;
 
-      // Temporarily append clone to body (hidden)
-      cloneElement.style.position = 'absolute';
-      cloneElement.style.left = '-9999px';
-      cloneElement.style.top = '-9999px';
-      document.body.appendChild(cloneElement);
+  //     const element = document.getElementById('receipt-content');
 
-      //  Handle all images - convert to base64 to avoid CORS issues
-      const images = cloneElement.querySelectorAll('img');
-      const imagePromises = Array.from(images).map(async (img) => {
-        try {
-          // Skip if already data URL
-          if (img.src && img.src.startsWith('data:')) {
-            return;
-          }
+  //     //  Create a clone of the element to avoid modifying the original
+  //     const cloneElement = element.cloneNode(true);
+  //     cloneElement.style.width = '800px';
+  //     cloneElement.style.padding = '10px';
+  //     cloneElement.style.margin = '0';
+  //     cloneElement.style.background = 'white';
+  //     cloneElement.style.boxShadow = 'none';
 
-          // Fetch and convert image to base64
-          const response = await fetch(img.src, {
-            mode: 'cors',
-            headers: {
-              'Origin': window.location.origin
-            }
-          });
+  //     // Temporarily append clone to body (hidden)
+  //     cloneElement.style.position = 'absolute';
+  //     cloneElement.style.left = '-9999px';
+  //     cloneElement.style.top = '-9999px';
+  //     document.body.appendChild(cloneElement);
 
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
+  //     //  Handle all images - convert to base64 to avoid CORS issues
+  //     const images = cloneElement.querySelectorAll('img');
+  //     const imagePromises = Array.from(images).map(async (img) => {
+  //       try {
+  //         // Skip if already data URL
+  //         if (img.src && img.src.startsWith('data:')) {
+  //           return;
+  //         }
 
-          const blob = await response.blob();
-          const reader = new FileReader();
+  //         // Fetch and convert image to base64
+  //         const response = await fetch(img.src, {
+  //           mode: 'cors',
+  //           headers: {
+  //             'Origin': window.location.origin
+  //           }
+  //         });
 
-          return new Promise((resolve) => {
-            reader.onloadend = () => {
-              img.src = reader.result;
-              resolve();
-            };
-            reader.onerror = () => {
-              console.warn('Failed to convert image:', img.src);
-              resolve();
-            };
-            reader.readAsDataURL(blob);
-          });
-        } catch (error) {
-          console.warn('Could not load image:', img.src, error);
-          // Try alternative: use canvas to convert
-          try {
-            const base64 = await convertImageToBase64Alternative(img.src);
-            if (base64) {
-              img.src = base64;
-            }
-          } catch (e) {
-            console.warn('Alternative conversion also failed');
-          }
-          return Promise.resolve();
-        }
-      });
+  //         if (!response.ok) {
+  //           throw new Error(`HTTP ${response.status}`);
+  //         }
 
-      // Wait for all images to be converted
-      await Promise.all(imagePromises);
+  //         const blob = await response.blob();
+  //         const reader = new FileReader();
 
-      // Additional delay to ensure images are rendered
-      await new Promise(resolve => setTimeout(resolve, 500));
+  //         return new Promise((resolve) => {
+  //           reader.onloadend = () => {
+  //             img.src = reader.result;
+  //             resolve();
+  //           };
+  //           reader.onerror = () => {
+  //             console.warn('Failed to convert image:', img.src);
+  //             resolve();
+  //           };
+  //           reader.readAsDataURL(blob);
+  //         });
+  //       } catch (error) {
+  //         console.warn('Could not load image:', img.src, error);
+  //         // Try alternative: use canvas to convert
+  //         try {
+  //           const base64 = await convertImageToBase64Alternative(img.src);
+  //           if (base64) {
+  //             img.src = base64;
+  //           }
+  //         } catch (e) {
+  //           console.warn('Alternative conversion also failed');
+  //         }
+  //         return Promise.resolve();
+  //       }
+  //     });
 
-      //  Configure html2canvas with optimal settings
-      const canvas = await html2canvas(cloneElement, {
-        scale: 3,
-        backgroundColor: '#ffffff',
-        logging: false,
-        useCORS: true,
-        allowTaint: false,
-        imageTimeout: 0, // No timeout
-        onclone: (clonedDoc, element) => {
-          // Ensure all images are properly loaded in clone
-          const clonedImages = clonedDoc.querySelectorAll('img');
-          clonedImages.forEach(img => {
-            if (img.src && !img.src.startsWith('data:')) {
-              img.crossOrigin = 'anonymous';
-            }
-          });
-        }
-      });
+  //     // Wait for all images to be converted
+  //     await Promise.all(imagePromises);
 
-      // Remove the temporary clone
-      document.body.removeChild(cloneElement);
+  //     // Additional delay to ensure images are rendered
+  //     await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Create PDF
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jspdf.jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
+  //     //  Configure html2canvas with optimal settings
+  //     const canvas = await html2canvas(cloneElement, {
+  //       scale: 3,
+  //       backgroundColor: '#ffffff',
+  //       logging: false,
+  //       useCORS: true,
+  //       allowTaint: false,
+  //       imageTimeout: 0, // No timeout
+  //       onclone: (clonedDoc, element) => {
+  //         // Ensure all images are properly loaded in clone
+  //         const clonedImages = clonedDoc.querySelectorAll('img');
+  //         clonedImages.forEach(img => {
+  //           if (img.src && !img.src.startsWith('data:')) {
+  //             img.crossOrigin = 'anonymous';
+  //           }
+  //         });
+  //       }
+  //     });
 
-      // Calculate dimensions
-      const imgWidth = 190; // mm (A4 width minus margins)
-      const pageHeight = 277; // mm (A4 height minus margins)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
+  //     // Remove the temporary clone
+  //     document.body.removeChild(cloneElement);
 
-      // Add first page
-      pdf.addImage(imgData, 'PNG', 10, position + 10, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+  //     // Create PDF
+  //     const imgData = canvas.toDataURL('image/png');
+  //     const pdf = new jspdf.jsPDF({
+  //       orientation: 'portrait',
+  //       unit: 'mm',
+  //       format: 'a4'
+  //     });
 
-      // Add additional pages if content overflows
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 10, position + 10, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
+  //     // Calculate dimensions
+  //     const imgWidth = 190; // mm (A4 width minus margins)
+  //     const pageHeight = 277; // mm (A4 height minus margins)
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  //     let heightLeft = imgHeight;
+  //     let position = 0;
 
-      // Save the PDF
-      pdf.save(`Payment_receipt_${companyDetails?.company.company_name || 'receipt'}_${Date.now()}.pdf`);
+  //     // Add first page
+  //     pdf.addImage(imgData, 'PNG', 10, position + 10, imgWidth, imgHeight);
+  //     heightLeft -= pageHeight;
 
-      // Show success message
-      showToastMessage('Receipt downloaded successfully!', 'success');
+  //     // Add additional pages if content overflows
+  //     while (heightLeft > 0) {
+  //       position = heightLeft - imgHeight;
+  //       pdf.addPage();
+  //       pdf.addImage(imgData, 'PNG', 10, position + 10, imgWidth, imgHeight);
+  //       heightLeft -= pageHeight;
+  //     }
 
-      // Reset button
-      downloadBtn.innerHTML = originalText;
-      downloadBtn.disabled = false;
+  //     // Save the PDF
+  //     pdf.save(`Payment_receipt_${companyDetails?.company.company_name || 'receipt'}_${Date.now()}.pdf`);
 
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      showToastMessage('Error generating receipt. Please try again.', 'error');
+  //     // Show success message
+  //     showToastMessage('Receipt downloaded successfully!', 'success');
 
-      // Reset button
-      const downloadBtn = document.querySelector('.receipt-premium-download');
-      if (downloadBtn) {
-        downloadBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Receipt';
-        downloadBtn.disabled = false;
-      }
-    }
-  };
+  //     // Reset button
+  //     downloadBtn.innerHTML = originalText;
+  //     downloadBtn.disabled = false;
+
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //     showToastMessage('Error generating receipt. Please try again.', 'error');
+
+  //     // Reset button
+  //     const downloadBtn = document.querySelector('.receipt-premium-download');
+  //     if (downloadBtn) {
+  //       downloadBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Receipt';
+  //       downloadBtn.disabled = false;
+  //     }
+  //   }
+  // };
 
   //  Alternative image to base64 converter using canvas
-  const convertImageToBase64Alternative = (url) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
+  // const convertImageToBase64Alternative = (url) => {
+  //   return new Promise((resolve, reject) => {
+  //     const img = new Image();
+  //     img.crossOrigin = 'Anonymous';
 
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        try {
-          const base64 = canvas.toDataURL('image/png');
-          resolve(base64);
-        } catch (error) {
-          reject(error);
-        }
-      };
+  //     img.onload = () => {
+  //       const canvas = document.createElement('canvas');
+  //       canvas.width = img.width;
+  //       canvas.height = img.height;
+  //       const ctx = canvas.getContext('2d');
+  //       ctx.drawImage(img, 0, 0);
+  //       try {
+  //         const base64 = canvas.toDataURL('image/png');
+  //         resolve(base64);
+  //       } catch (error) {
+  //         reject(error);
+  //       }
+  //     };
 
-      img.onerror = () => {
-        reject(new Error(`Failed to load image: ${url}`));
-      };
+  //     img.onerror = () => {
+  //       reject(new Error(`Failed to load image: ${url}`));
+  //     };
 
-      // Add timestamp to avoid cache issues
-      img.src = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
-    });
-  };
+  //     // Add timestamp to avoid cache issues
+  //     img.src = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+  //   });
+  // };
 
   // Helper function for toast message (if you don't have one)
-  const showToastMessage = (message, type = 'success') => {
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `complaint-success-toast ${type === 'error' ? 'error-toast' : ''}`;
-    toast.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      ${type === 'success' ? '<path d="M20 6L9 17l-5-5"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
-    </svg>
-    <span class="complaint-success-message">${message}</span>
-  `;
+  // const showToastMessage = (message, type = 'success') => {
+  //   // Create toast element
+  //   const toast = document.createElement('div');
+  //   toast.className = `complaint-success-toast ${type === 'error' ? 'error-toast' : ''}`;
+  //   toast.innerHTML = `
+  //   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  //     ${type === 'success' ? '<path d="M20 6L9 17l-5-5"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
+  //   </svg>
+  //   <span class="complaint-success-message">${message}</span>
+  // `;
 
-    document.body.appendChild(toast);
+  //   document.body.appendChild(toast);
 
-    // Remove toast after 3 seconds
-    setTimeout(() => {
-      toast.style.animation = 'slideOutRight 0.3s ease';
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    }, 3000);
-  };
+  //   // Remove toast after 3 seconds
+  //   setTimeout(() => {
+  //     toast.style.animation = 'slideOutRight 0.3s ease';
+  //     setTimeout(() => {
+  //       document.body.removeChild(toast);
+  //     }, 300);
+  //   }, 3000);
+  // };
 
   // Add this CSS for error toast and slideOut animation
   const additionalCSS = `
@@ -774,12 +775,12 @@ const PaymentHistory = () => {
   }
 
   // Add this function before the return statement
-  const getUniqueReferralData = (payment) => {
-    if (!payment.referral_data || payment.referral_data.length === 0) {
-      return [];
-    }
-    return payment.referral_data;
-  };
+  // const getUniqueReferralData = (payment) => {
+  //   if (!payment.referral_data || payment.referral_data.length === 0) {
+  //     return [];
+  //   }
+  //   return payment.referral_data;
+  // };
 
   const hasReferral = (payment) => {
     return payment.referral_data && payment.referral_data.length > 0;
@@ -1307,6 +1308,13 @@ const PaymentHistory = () => {
                           <th>Total Paid</th>
                           <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
+                  {hasReferral(downloadReceipt) && (
+
+                        <tr className="highlight-row">
+                          <th>Discount</th>
+                          <td>₹{downloadReceipt.total_referral_amt || 0}</td>
+                        </tr>
+                      )}
                         <tr className="balance-row">
                           <th>Balance Amount</th>
                           <td>₹{downloadReceipt.bal_amt}</td>
@@ -1322,7 +1330,7 @@ const PaymentHistory = () => {
                   </div>
 
                   {/* Referral Section - Show only if referral exists */}
-                  {hasReferral(downloadReceipt) && (
+                  {/* {hasReferral(downloadReceipt) && (
                     <>
                       <div className="referral-header-section">
                         <div className="referral-header-left">
@@ -1370,7 +1378,7 @@ const PaymentHistory = () => {
                         </table>
                       </div>
                     </>
-                  )}
+                  )} */}
 
                   {/* Section 3: Bank Details */}
                   <div className="receipt-premium-section">

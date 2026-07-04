@@ -28,6 +28,7 @@ import { Link } from 'react-router-dom';
 import { secureStorage } from '../../utils/secureStorage';
 import { useScholar } from '../../hooks/useScholar';
 import { useLogout } from "../../hooks/useLogout";
+import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Header = ({  setMobileOpen }) => {
   const { theme, toggleTheme } = useTheme();
@@ -42,7 +43,7 @@ const { mutate: logout } = useLogout();
 
   const { data: scholarData } = useScholar();
   const scholarImage = scholarData?.scholar_profile
-    ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
+    ? getAssetUrl(scholarData.scholar_profile)
     : null;
     
   const notificationRef = useRef();

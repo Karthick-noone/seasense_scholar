@@ -23,6 +23,7 @@ import { secureStorage } from '../../utils/secureStorage';
 import { useLogout } from "../../hooks/useLogout";
 import { useScholar } from '../../hooks/useScholar';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   const location = useLocation();
@@ -33,7 +34,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   const companyDetails = secureStorage.getCompany();
   const { data: scholarData } = useScholar();
 
-  const companyLogo = `http://scholarapi.seasense.in/${scholarData?.company?.com_logo}` || logo;
+  const companyLogo = getAssetUrl(scholarData?.company?.com_logo) || logo;
   // const companyLogo = `${process.env.REACT_APP_BASE_URL}/${companyDetails?.com_logo}` || `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
 
   useEffect(() => {
