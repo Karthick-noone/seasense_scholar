@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard,  Eye, FileText, IndianRupee, Wallet, XCircle,  Calendar, Tag,  Building2, IndianRupeeIcon, InfoIcon } from 'lucide-react';
+import { AlertCircle, CheckCircle, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Eye, FileText, IndianRupee, Wallet, XCircle, Calendar, Tag, Building2, IndianRupeeIcon, InfoIcon, BuildingIcon, Landmark } from 'lucide-react';
 // import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 // import html2canvas from 'html2canvas';
@@ -116,19 +116,19 @@ const PaymentHistory = () => {
   //         padding: 0;
   //         box-sizing: border-box;
   //       }
-        
+
   //       body {
   //         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   //         padding: 20px 10px;
   //         background: white;
   //         color: #1f2937;
   //       }
-        
+
   //       .print-container {
   //         max-width: 1200px;
   //         margin: 0 auto;
   //       }
-        
+
   //       /* Header Section */
   //       .print-header {
   //         text-align: center;
@@ -136,25 +136,25 @@ const PaymentHistory = () => {
   //         padding-bottom: 5px;
   //         border-bottom: 2px solid #e5e7eb;
   //       }
-        
+
   //       .company-logo {
   //         max-width: 200px;
   //         margin-bottom: 5px;
   //       }
-        
+
   //       .company-name {
   //         font-size: 20px;
   //         font-weight: 700;
   //         color: #1f2937;
   //         margin-bottom: 3px;
   //       }
-        
+
   //       .company-details {
   //         font-size: 13px;
   //         color: #6b7280;
   //         line-height: 1.5;
   //       }
-        
+
   //       .company-details-date {
   //         display: flex;
   //         align-items: flex-start;
@@ -163,14 +163,14 @@ const PaymentHistory = () => {
   //         line-height: 1.5;
   //         margin-top:10px;
   //       }
-        
+
   //       .report-title {
   //         font-size: 20px;
   //         font-weight: 600;
   //         margin: 20px 0 10px;
   //         color: #374151;
   //       }
-        
+
   //       /* Scholar Info Section */
   //       .scholar-section {
   //         background: #f9fafb;
@@ -178,7 +178,7 @@ const PaymentHistory = () => {
   //         border-radius: 12px;
   //         margin-bottom: 10px;
   //       }
-        
+
   //       .scholar-section h4 {
   //         font-size: 16px;
   //         font-weight: 600;
@@ -187,32 +187,32 @@ const PaymentHistory = () => {
   //         border-left: 3px solid #10b981;
   //         padding-left: 12px;
   //       }
-        
+
   //       .scholar-grid {
   //         display: grid;
   //         grid-template-columns: repeat(2, 1fr);
   //         gap: 5px;
   //       }
-        
+
   //       .scholar-item {
   //         display: flex;
   //         align-items: baseline;
   //         gap: 5px;
   //       }
-        
+
   //       .scholar-label {
   //         font-size: 13px;
   //         font-weight: 500;
   //         color: #6b7280;
   //         min-width: 120px;
   //       }
-        
+
   //       .scholar-value {
   //         font-size: 14px;
   //         font-weight: 500;
   //         color: #1f2937;
   //       }
-        
+
   //       /* Stats Section */
   //       .stats-section {
   //         display: grid;
@@ -220,14 +220,14 @@ const PaymentHistory = () => {
   //         gap: 20px;
   //         margin-bottom: 30px;
   //       }
-        
+
   //       .stat-card {
   //         background: #f9fafb;
   //         padding: 16px;
   //         border-radius: 12px;
   //         text-align: center;
   //       }
-        
+
   //       .stat-label {
   //         font-size: 12px;
   //         font-weight: 500;
@@ -236,43 +236,43 @@ const PaymentHistory = () => {
   //         letter-spacing: 0.5px;
   //         margin-bottom: 8px;
   //       }
-        
+
   //       .stat-amount {
   //         font-size: 24px;
   //         font-weight: 700;
   //         color: #1f2937;
   //       }
-        
+
   //       .stat-amount.green {
   //         color: #10b981;
   //       }
-        
+
   //       .stat-amount.orange {
   //         color: #f59e0b;
   //       }
-        
+
   //       .stat-amount.purple {
   //         color: #8b5cf6;
   //       }
-        
+
   //       /* Payment Table */
   //       .payments-table-section {
   //         margin-top: 10px;
   //       }
-        
+
   //       .payments-table-section h4 {
   //         font-size: 16px;
   //         font-weight: 600;
   //         margin-bottom: 15px;
   //         color: #374151;
   //       }
-        
+
   //       table {
   //         width: 100%;
   //         border-collapse: collapse;
   //         margin-bottom: 30px;
   //       }
-        
+
   //       th {
   //         background: #f3f4f6;
   //         padding: 12px 12px;
@@ -282,23 +282,23 @@ const PaymentHistory = () => {
   //         color: #374151;
   //         border-bottom: 2px solid #e5e7eb;
   //       }
-        
+
   //       td {
   //         padding: 12px 12px;
   //         font-size: 13px;
   //         color: #4b5563;
   //         border-bottom: 1px solid #e5e7eb;
   //       }
-        
+
   //       tr:last-child td {
   //         border-bottom: none;
   //       }
-        
+
   //       .amount {
   //         font-weight: 600;
   //         color: #059669;
   //       }
-        
+
   //       .status-badge {
   //         display: inline-block;
   //         padding: 4px 10px;
@@ -306,12 +306,12 @@ const PaymentHistory = () => {
   //         font-size: 11px;
   //         font-weight: 600;
   //       }
-        
+
   //       .status-badge.approved {
   //         background: #d1fae5;
   //         color: #059669;
   //       }
-        
+
   //       /* Footer */
   //       .print-footer {
   //         margin-top: 40px;
@@ -321,12 +321,12 @@ const PaymentHistory = () => {
   //         font-size: 11px;
   //         color: #9ca3af;
   //       }
-        
+
   //       .signature {
   //         margin-top: 50px;
   //         text-align: right;
   //       }
-        
+
   //       .signature-line {
   //         margin-top: 40px;
   //         padding-top: 20px;
@@ -334,12 +334,12 @@ const PaymentHistory = () => {
   //         width: 250px;
   //         margin-left: auto;
   //       }
-        
+
   //       .signature-text {
   //         font-size: 12px;
   //         color: #6b7280;
   //       }
-        
+
   //       @media print {
   //         body {
   //           padding: 20px;
@@ -367,7 +367,7 @@ const PaymentHistory = () => {
   //         <!-- <div class="report-title">Payment History Report</div>-->
   //         <div class="company-details-date"> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
   //       </div>
-        
+
   //       <!-- Scholar Details -->
   //       <div class="scholar-section">
   //         <h4>Scholar Information</h4>
@@ -394,9 +394,9 @@ const PaymentHistory = () => {
   //           </div>
   //         </div>
   //       </div>
-        
-    
-        
+
+
+
   //       <!-- Payment History Table -->
   //       <div class="payments-table-section">
   //       <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -433,7 +433,7 @@ const PaymentHistory = () => {
   //           </tbody>
   //         </table>
   //       </div>
-        
+
   //       <!-- Summary Row -->
   //       <table style="width: auto; margin-left: auto; background: #f9fafb;">
   //         <tr>
@@ -441,7 +441,7 @@ const PaymentHistory = () => {
   //           <td style="font-weight: 700; color: #059669;">₹${totalPaid}</td>
   //         </tr>
   //       </table>
-        
+
 
   //       <!--
   //       <div class="signature">
@@ -451,7 +451,7 @@ const PaymentHistory = () => {
   //       </div>
   //       -->
   //     </div>
-      
+
   //     <script>
   //       window.onload = function() {
   //         window.print();
@@ -923,25 +923,25 @@ const PaymentHistory = () => {
                         })}
                       </td>
                       <td className="payments-table-cell" data-label="Payment Purpose">
-                        {payment.purpose.pay_purpose}
+                        {payment.purpose?.pay_purpose}
                       </td>
-                     <td className="payments-table-cell amount-cell" data-label="Paid Amount">
-  <div className="amount-wrapper">
-    <div className="paid-amount">
-      ₹{payment.pay_received.toLocaleString()}
-    </div>
-    {payment.referral_data && payment.referral_data.length > 0 && (
-      <div className="referral-amount-wrapper">
-        <FaUsers className="referral-icon" />
-        <span className="referral-amount">
-          ₹{payment.referral_data[0]?.referral_amount?.toLocaleString() || 0}
-        </span>
-      </div>
-    )}
-  </div>
-</td>
+                      <td className="payments-table-cell amount-cell" data-label="Paid Amount">
+                        <div className="amount-wrapper">
+                          <div className="paid-amount">
+                            ₹{payment.pay_received.toLocaleString()}
+                          </div>
+                          {payment.referral_data && payment.referral_data.length > 0 && (
+                            <div className="referral-amount-wrapper" title={`Referral Amount: ₹${payment.total_referral_amt?.toLocaleString() || 0}`}>
+                              <FaUsers className="referral-icon" />
+                              <span className="referral-amount">
+                                ₹{payment.total_referral_amt?.toLocaleString() || 0}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="payments-table-cell" data-label="Bank">
-                        {payment.bank.bank_nm}
+                        {payment.bank?.bank_nm}
                       </td>
                       <td className="payments-table-cell" data-label="Status">
                         <span className={`status-badge ${payment.pay_status}`}>
@@ -1128,11 +1128,20 @@ const PaymentHistory = () => {
                   {/* Bank */}
                   <div className="payment-detail-item">
                     <div className="payment-detail-icon">
-                      <Building2 size={16} />
+                      <Landmark size={16} />
                     </div>
                     <div className="payment-detail-content">
                       <span className="payment-detail-label">Bank</span>
-                      <span className="payment-detail-value">{selectedPayment.bank.bank_nm}</span>
+                      <span className="payment-detail-value">{selectedPayment.bank?.bank_nm}</span>
+                    </div>
+                  </div>
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Building2 size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Account Type</span>
+                      <span className="payment-detail-value">{selectedPayment.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</span>
                     </div>
                   </div>
 
@@ -1195,7 +1204,7 @@ const PaymentHistory = () => {
                               <td>{index + 1}</td>
                               <td>{referral.referred_person}</td>
                               <td>₹{referral.referral_amount}</td>
-                              <td>{referral.referral_reason || 'N/A'}</td>
+                              <td>{referral.referral_reason || '-'}</td>
                               <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "short",
@@ -1308,13 +1317,13 @@ const PaymentHistory = () => {
                           <th>Total Paid</th>
                           <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
-                  {hasReferral(downloadReceipt) && (
+                        {hasReferral(downloadReceipt) && (
 
-                        <tr className="highlight-row">
-                          <th>Discount</th>
-                          <td>₹{downloadReceipt.total_referral_amt || 0}</td>
-                        </tr>
-                      )}
+                          <tr className="highlight-row">
+                            <th>Discount</th>
+                            <td>₹{downloadReceipt.total_referral_amt || 0}</td>
+                          </tr>
+                        )}
                         <tr className="balance-row">
                           <th>Balance Amount</th>
                           <td>₹{downloadReceipt.bal_amt}</td>
@@ -1389,7 +1398,7 @@ const PaymentHistory = () => {
                         <p>Bank Transfer - {downloadReceipt.bank?.bank_nm}</p>
                       </div>
                       <div className="receipt-premium-info-item">
-                        <label>Account Status</label>
+                        <label>Account Type</label>
                         <p>{downloadReceipt.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</p>
                       </div>
                     </div>
