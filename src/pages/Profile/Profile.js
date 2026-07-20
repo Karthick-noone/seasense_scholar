@@ -41,13 +41,11 @@ import Loader from './../../components/Loader/Loader';
 import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Profile = () => {
-  const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [hoverImage, setHoverImage] = useState(false);
   const [hoverCamera, setHoverCamera] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState(false);
-  const [isDataReady, setIsDataReady] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleImageView = () => {
@@ -72,18 +70,6 @@ const Profile = () => {
 
   const [workProgress, setWorkProgress] = useState(0);
   const lastWorkStatus = lastStatus?.status;
-
-  // Track loading states
-  useEffect(() => {
-    // Check if both hooks have finished loading
-    if (!scholarLoading && !lastStatusLoading) {
-      // Small delay for smooth transition
-      setTimeout(() => {
-        setLoading(false);
-        setIsDataReady(true);
-      }, 100);
-    }
-  }, [scholarLoading, lastStatusLoading]);
 
   useEffect(() => {
     if (lastWorkStatus !== undefined) {
@@ -232,7 +218,7 @@ const Profile = () => {
     return name.charAt(0).toUpperCase() + name.slice(1);
   }
 
-  if (loading) {
+  if (scholarLoading) {
     return (
       <div className="dashboard-loader-wrapper">
         <Loader

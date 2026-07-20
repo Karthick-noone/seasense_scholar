@@ -24,21 +24,17 @@ import {
 } from 'lucide-react';
 import './Dashboard.css';
 import { secureStorage } from '../../utils/secureStorage';
-import { getPaymentData } from '../../services/paymentService';
 import { useComplaintCounts, useComplaints } from '../../hooks/useComplaints';
 import { usePayments } from '../../hooks/usePayments';
 import { useWorkDetails, useLastWorkStatus } from "../../hooks/useWorkDetails";
 import { useScholar } from '../../hooks/useScholar';
 import { Link } from 'react-router-dom';
-import Loader from './../../components/Loader/Loader';
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState(true);
   const [pendingPayment, setPendingPayment] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [workProgress, setWorkProgress] = useState(0);
-  const [isDataReady, setIsDataReady] = useState(false);
 
   // Store actual values for animation targets
   const [targetPendingPayment, setTargetPendingPayment] = useState(0);
@@ -48,16 +44,16 @@ const Dashboard = () => {
   const [targetWorkProgress, setTargetWorkProgress] = useState(0);
 
   const scholar = secureStorage.getScholar();
-  const { data: paymentData = [] } = usePayments();
+  const companyStored = secureStorage.getCompany();
+  const { data: paymentData = [], isFetched: paymentsFetched } = usePayments();
   const payment = paymentData[0];
 
-  const { data: apiResponse } = useComplaints(1, 10, 'all', '');
+  const { data: apiResponse } = useComplaints(1, 1, 'all', '');
   const complaint = apiResponse?.data?.[0];
 
-  const company = secureStorage.getCompany();
-  const { data: counts } = useComplaintCounts();
+  const { data: counts, isFetched: countsFetched } = useComplaintCounts();
 
-  const { data: work } = useWorkDetails();
+  const { data: work, isFetched: workFetched } = useWorkDetails();
   const workDetails = work?.[0];
   const workStatusList = workDetails?.work_dtls_sts || [];
 
@@ -71,104 +67,37 @@ const Dashboard = () => {
 
   const { data: companyData } = useScholar();
 
-  // Track data loading states
-  const [dataStates, setDataStates] = useState({
-    paymentsLoaded: false,
-    complaintsLoaded: false,
-    workLoaded: false,
-    countsLoaded: false,
-    scholarLoaded: false
-  });
-
-  // Set target values when data arrives
+  // Set target values when complaint counts arrive
   useEffect(() => {
     if (counts) {
-      setTargetResolvedComplaints(counts.resolved || 0);
-      setTargetPendingComplaints(counts.pending || 0);
-      setDataStates(prev => ({ ...prev, countsLoaded: true }));
+      const resolved = counts.resolved || 0;
+      const pending = counts.pending || 0;
+      setTargetResolvedComplaints(resolved);
+      setTargetPendingComplaints(pending);
+      animateCount(setResolvedComplaints, resolved, 1200);
+      animateCount(setPendingComplaints, pending, 1200);
     }
   }, [counts]);
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const scholarData = secureStorage.getScholar();
-        if (!scholarData?.id) {
-          setLoading(false);
-          return;
-        }
+    if (paymentsFetched) {
+      const paymentDataFromApi = paymentData?.[0];
+      const pending = Number(paymentDataFromApi?.bal_amt) || 0;
+      const total = Number(paymentDataFromApi?.tot_paid) || 0;
+      setTargetPendingPayment(pending);
+      setTargetTotalPaid(total);
+      animateCount(setPendingPayment, pending, 1200);
+      animateCount(setTotalPaid, total, 1200);
+    }
+  }, [paymentData, paymentsFetched]);
 
-        const res = await getPaymentData(scholarData.id);
-        const response = res.data;
-        const paymentDataFromApi = response.data?.[0];
-
-        setTargetPendingPayment(Number(paymentDataFromApi?.bal_amt) || 0);
-        setTargetTotalPaid(Number(paymentDataFromApi?.tot_paid) || 0);
-
-        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
-      } catch (err) {
-        console.error("Dashboard API Error:", err);
-        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
-      }
-    };
-
-    fetchDashboard();
-  }, []);
-
-  // Set target work progress when data arrives
   useEffect(() => {
     if (lastWorkStatus !== undefined) {
-      setTargetWorkProgress(Number(lastWorkStatus) || 0);
-      setDataStates(prev => ({ ...prev, workLoaded: true }));
+      const progress = Number(lastWorkStatus) || 0;
+      setTargetWorkProgress(progress);
+      animateProgress(progress);
     }
   }, [lastWorkStatus]);
-
-  // Track other data loading states
-  useEffect(() => {
-    if (apiResponse !== undefined) {
-      setDataStates(prev => ({ ...prev, complaintsLoaded: true }));
-    }
-  }, [apiResponse]);
-
-  useEffect(() => {
-    if (work !== undefined) {
-      setDataStates(prev => ({ ...prev, workLoaded: true }));
-    }
-  }, [work]);
-
-  useEffect(() => {
-    if (companyData !== undefined) {
-      setDataStates(prev => ({ ...prev, scholarLoaded: true }));
-    }
-  }, [companyData]);
-
-  // Check when all data is loaded and start animations
-  useEffect(() => {
-    const allDataLoaded =
-      dataStates.paymentsLoaded &&
-      dataStates.complaintsLoaded &&
-      dataStates.workLoaded &&
-      dataStates.countsLoaded &&
-      dataStates.scholarLoaded;
-
-    if (allDataLoaded && !isDataReady) {
-      // First hide the loader
-      setLoading(false);
-      setIsDataReady(true);
-
-      // Small delay to ensure DOM is ready, then start animations
-      setTimeout(() => {
-        // Animate counts
-        animateCount(setResolvedComplaints, targetResolvedComplaints, 1200);
-        animateCount(setPendingComplaints, targetPendingComplaints, 1200);
-        animateCount(setTotalPaid, targetTotalPaid, 1200);
-        animateCount(setPendingPayment, targetPendingPayment, 1200);
-
-        // Animate progress bar
-        animateProgress(targetWorkProgress);
-      }, 100);
-    }
-  }, [dataStates, isDataReady, targetResolvedComplaints, targetPendingComplaints, targetTotalPaid, targetPendingPayment, targetWorkProgress]);
 
   const progressRef = useRef(null);
   const countRefs = useRef({
@@ -222,7 +151,7 @@ const Dashboard = () => {
   const statsCards = [
     {
       icon: CheckCircle,
-      label: 'Total Paid',
+      label: 'Amount Paid',
       value: `₹${totalPaid.toLocaleString()}`,
       color: '#10b981',
       bgColor: 'rgba(16, 185, 129, 0.1)',
@@ -230,8 +159,8 @@ const Dashboard = () => {
     },
     {
       icon: IndianRupee,
-      label: 'Pending Payment',
-      value: pendingPayment === 0 ? 'No pending payment' : `₹${pendingPayment}`,
+      label: 'Balance Payment',
+      value: pendingPayment === 0 ? 'No balance payment' : `₹${pendingPayment}`,
       color: '#f59e0b',
       bgColor: 'rgba(245, 158, 11, 0.1)',
       isZero: pendingPayment === 0,
@@ -326,19 +255,6 @@ const Dashboard = () => {
 
   const statusClass = complaint?.status?.toLowerCase().replace(/\s+/g, '-');
   const getStatusClass = (status) => status?.toLowerCase().replace(/\s+/g, '-');
-
-  // Show inline loader while data is being fetched (not full page)
-  if (loading) {
-    return (
-      <div className="dashboard-loader-wrapper">
-        <Loader
-          type="scholar"
-          size="large"
-          text="Loading dashboard data...."
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="dashboard-premium">
