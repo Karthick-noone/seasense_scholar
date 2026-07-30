@@ -29,7 +29,9 @@ import {
   Globe,
   UserCog,
   UserCog2,
-  UserPen
+  UserPen,
+  Contact,
+  PhoneCall
 } from 'lucide-react';
 import './Profile.css';
 import { secureStorage } from '../../utils/secureStorage';
@@ -438,6 +440,20 @@ const Profile = () => {
                     {scholarData.secondary_emails.map((email, index) => (
                       <div className="contact-premium-item" key={index}>
                         <Mail size={16} />
+                        <span>{email}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {scholarData?.secondary_contacts?.length > 0 && (
+                <>
+                  <h3 style={{ marginTop: "15px" }}>Secondary Contacts</h3>
+                  <div className="contact-premium-list">
+                    {scholarData.secondary_contacts.map((email, index) => (
+                      <div className="contact-premium-item" key={index}>
+                        <PhoneCall size={16} />
                         <span>{email}</span>
                       </div>
                     ))}

@@ -20,6 +20,6 @@ export const useScholar = (enabled = true) => {
     queryFn: fetchScholar,
     staleTime: 1000 * 60 * 10,
     refetchOnMount: 'always',
-    enabled: !!scholarId && enabled, // ✅ Now accepts external enabled parameter
+    enabled: !!scholarId && enabled, //  Now accepts external enabled parameter
   });
 };
