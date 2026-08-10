@@ -403,8 +403,8 @@ background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02));
 }
 
-.user-glass-large-avatar {
-  width: 60px;
+/* .user-glass-large-avatar {
+  width: 100px;
   height: 60px;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   border-radius: 50%;
@@ -414,8 +414,18 @@ background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); 
   color: white;
   font-weight: 700;
   font-size: 20px;
+} */
+.dropdown-avatar .avatar-initials.large {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
 }
-
 .user-glass-profile-info h4 {
   font-size: 15px;
   font-weight: 700;

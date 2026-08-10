@@ -46,7 +46,8 @@ const Dashboard = () => {
   const scholar = secureStorage.getScholar();
   const companyStored = secureStorage.getCompany();
   const { data: paymentData = [], isFetched: paymentsFetched } = usePayments();
-  const payment = paymentData[0];
+  // const payment = paymentData[0];
+const payment = paymentData[paymentData.length - 1];
 
   const { data: apiResponse } = useComplaints(1, 1, 'all', '');
   const complaint = apiResponse?.data?.[0];
@@ -81,7 +82,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (paymentsFetched) {
-      const paymentDataFromApi = paymentData?.[0];
+      // const paymentDataFromApi = paymentData?.[0];
+      
+      const paymentDataFromApi = paymentData[paymentData.length - 1];
       const pending = Number(paymentDataFromApi?.bal_amt) || 0;
       const total = Number(paymentDataFromApi?.tot_paid) || 0;
       setTargetPendingPayment(pending);
@@ -159,8 +162,8 @@ const Dashboard = () => {
     },
     {
       icon: IndianRupee,
-      label: 'Balance Payment',
-      value: pendingPayment === 0 ? 'No balance payment' : `₹${pendingPayment}`,
+      label: 'Balance Amount',
+      value: pendingPayment === 0 ? 'No balance payment' : `₹${pendingPayment.toLocaleString()}`,
       color: '#f59e0b',
       bgColor: 'rgba(245, 158, 11, 0.1)',
       isZero: pendingPayment === 0,
@@ -169,11 +172,13 @@ const Dashboard = () => {
     {
       icon: ThumbsUp,
       label: 'Resolved Complaints',
-      value: resolvedComplaints,
+      value: resolvedComplaints === 0 ? 'No resolved complaints' : resolvedComplaints,
       color: '#8b5cf6',
       bgColor: 'rgba(139, 92, 246, 0.1)',
       path: '/complaint-register',
-      status: "resolved"
+      status: "resolved",
+      isZero: resolvedComplaints === 0,
+
     },
     {
       icon: AlertCircle,
@@ -399,7 +404,7 @@ const Dashboard = () => {
                             >
                               <span className="stat-bar-label">{item.status}%</span>
                             </div>
-                            <span>{item.note}</span>
+                            {/* <span>{item.note}</span> */}
                           </div>
                         </div>
                       ))
@@ -493,7 +498,7 @@ const Dashboard = () => {
                 <strong>₹{((totalPaid || 0) + (pendingPayment || 0)).toLocaleString()}</strong>
               </div>
               <div className="summary-row">
-                <span>Pending Amount</span>
+                <span>Balance Amount</span>
                 <strong>₹{((pendingPayment || 0)).toLocaleString()}</strong>
               </div>
               <div className="summary-row">

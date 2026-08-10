@@ -191,15 +191,16 @@ const { mutate: logout } = useLogout();
             <div className="user-glass-dropdown">
               {/* Profile Header */}
               <div className="user-glass-profile-header">
-                <div className="user-glass-large-avatar">
-                  {scholarImage ? (
-                    <img src={scholarImage} alt="Profile" className='header-prof-img2' />
-                  ) : (
-                    <div className="user-glass-avatar1">
-                      <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
-                    </div>
-                  )}
-                  {/* <span>{scholar.user_name ? scholar.user_name.charAt(0) : 'S'}</span> */}
+                    <div className="dropdown-avatar">
+                  <div className="avatar-initials large">
+                    {scholarImage ? (
+                      <img src={scholarImage} alt="Profile" className='header-prof-img2' />
+                    ) : (
+                      <div className="user-glass-avatar2">
+                        <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="user-glass-profile-info">
                   <h4>{scholarData?.user_name || 'Scholar User'}</h4>

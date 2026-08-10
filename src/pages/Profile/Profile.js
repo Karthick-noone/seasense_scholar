@@ -324,8 +324,8 @@ const Profile = () => {
                   {lastStatus?.note && (
                     <div className="progress-stat">
                       {/* <Notebook size={14} className='progress-icon' /> */}
-                      <span>Notes:</span>
-                      <span>{capsLetter(lastStatus?.note)}</span>
+                      {/* <span>Notes:</span> */}
+                      {/* <span>{capsLetter(lastStatus?.note)}</span> */}
                     </div>
                   )}
                   {lastStatus?.date && (
